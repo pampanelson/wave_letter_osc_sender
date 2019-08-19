@@ -51,6 +51,7 @@ class ofApp : public ofBaseApp{
     
     
     ofxPanel gui;
+    ofParameter<bool> bSendingOSC;
     ofParameter<bool> bTracking;
     ofParameter<float> minArea, maxArea, threshold;
     ofParameter<bool> holes;
@@ -73,5 +74,8 @@ class ofApp : public ofBaseApp{
 
     
 
-    std::vector<Vec3f>   trackers;
+    std::vector<Vec3f>   trackers1;
+    std::vector<Vec3f>   trackers2;
+    std::vector<Vec3f>   trackers3;
+    
 };

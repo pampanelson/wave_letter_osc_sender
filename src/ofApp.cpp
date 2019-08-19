@@ -23,6 +23,7 @@ void ofApp::setup(){
     
     
     gui.setup();
+    gui.add(bSendingOSC.set("Sending osc",false));
     gui.add(bTracking.set("Tracking",false));
     gui.add(minArea.set("Min area", 10, 1, 100));
     gui.add(maxArea.set("Max area", 200, 1, 500));
@@ -52,16 +53,12 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    ofxOscMessage m;
-    m.setAddress("/composition/selectedclip/video/effects/pwl00/effect/float1");
-    m.addFloatArg(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0.f, 1.f, true));
-//    m.addFloatArg(ofMap(ofGetMouseY(), 0, ofGetHeight(), 0.f, 1.f, true));
-    sender.sendMessage(m, false);
+
     
     cam.update();
     
     bool bTrackingAreaSet = track1H * track2H * track2W * track3H * track3W;
-    cout << bTrackingAreaSet << endl;
+//    cout << bTrackingAreaSet << endl;
     if(cam.isFrameNew() && bTracking.get() && bTrackingAreaSet) {
         
 
@@ -89,7 +86,6 @@ void ofApp::update(){
         contourFinder.setThreshold(threshold);
         contourFinder.setFindHoles(holes);
 
-        trackers.clear();
 
         cv::Mat diff1 = toCv(diff);
         cv::Rect crop_roi;
@@ -107,6 +103,8 @@ void ofApp::update(){
         //        contourFinder.findContours(diff);
 
         // analyse roi
+        
+        trackers1.clear();
         contourFinder.findContours(crop);
 
         for (int i = 0; i<contourFinder.size(); i++) {
@@ -117,7 +115,7 @@ void ofApp::update(){
             
             Vec3f t = Vec3f(x,y,area);
             
-            trackers.push_back(t);
+            trackers1.push_back(t);
         }
         
         
@@ -125,6 +123,8 @@ void ofApp::update(){
 
         crop_roi = cv::Rect(track2PosX,track2PosY,track2W,track2H);
         crop = diff1(crop_roi).clone();
+        
+        trackers2.clear();
         contourFinder.findContours(crop);
 
         for (int i = 0; i<contourFinder.size(); i++) {
@@ -135,7 +135,7 @@ void ofApp::update(){
             
             Vec3f t = Vec3f(x,y,area);
             
-            trackers.push_back(t);
+            trackers2.push_back(t);
         }
         
         
@@ -144,6 +144,8 @@ void ofApp::update(){
 
         crop_roi = cv::Rect(track3PosX,track3PosY,track3W,track3H);
         crop = diff1(crop_roi).clone();
+        
+        trackers3.clear();
         contourFinder.findContours(crop);
 
         for (int i = 0; i<contourFinder.size(); i++) {
@@ -154,7 +156,7 @@ void ofApp::update(){
             
             Vec3f t = Vec3f(x,y,area);
             
-            trackers.push_back(t);
+            trackers3.push_back(t);
         }
         
         
@@ -173,6 +175,65 @@ void ofApp::update(){
         
 //        cout << trackers.size() << endl;
 //        cout << trackers[0][0] << "," << trackers[0][1] << "," << trackers[0][2] << endl;
+        
+    }
+    
+    
+    if(bSendingOSC){
+        // prepare data for osc send ----------------------------------------
+        
+        ofxOscMessage m;
+        m.setAddress("/composition/selectedclip/video/effects/pwl00/effect/float1");
+        m.addFloatArg(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0.f, 1.f, true));
+        //    m.addFloatArg(ofMap(ofGetMouseY(), 0, ofGetHeight(), 0.f, 1.f, true));
+        sender.sendMessage(m, false);
+        m.clear();
+        
+        
+        float angle = 0.0;
+        float power = 10.0;
+        
+        // ---------------------------------------- 1
+        angle = 0.1f;
+        power = 11.0f;
+        m.setAddress("/composition/tracking11");
+        m.addFloatArg(angle);
+        sender.sendMessage(m, false);
+        m.clear();
+        
+        m.setAddress("/composition/tracking12");
+        m.addFloatArg(power);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        
+        // ---------------------------------------- 2
+        angle = 0.2f;
+        power = 12.0f;
+        m.setAddress("/composition/tracking21");
+        m.addFloatArg(angle);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        m.setAddress("/composition/tracking22");
+        m.addFloatArg(power);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        
+        // ---------------------------------------- 3
+        angle = 0.3f;
+        power = 13.0f;
+        m.setAddress("/composition/tracking31");
+        m.addFloatArg(angle);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        m.setAddress("/composition/tracking32");
+        m.addFloatArg(power);
+        sender.sendMessage(m, false);
+        m.clear();
+
         
     }
 }
@@ -211,16 +272,27 @@ void ofApp::draw(){
     ofDrawRectangle(track3PosX, track3PosY, track3W, track3H);
     
 
-    ofSetColor(255,255,0,100);
-    for (int i = 0; i < trackers.size(); i++) {
-        ofDrawRectangle(trackers[i][0], trackers[i][1], trackers[i][2]/1000, trackers[i][2]/1000);
+    ofSetColor(0,255,255,100);
+    for (int i = 0; i < trackers1.size(); i++) {
+        ofDrawRectangle(trackers1[i][0], trackers1[i][1], trackers1[i][2]/1000, trackers1[i][2]/1000);
     }
     
-    ofSetColor(0,255,0,255);
-    if(trackers.size() > 0){
-        ofDrawBitmapString("trackers : " + ofToString(trackers.size()), 10, 10);
-
+    ofSetColor(255,0,255,100);
+    for (int i = 0; i < trackers2.size(); i++) {
+        ofDrawRectangle(trackers2[i][0], trackers2[i][1], trackers2[i][2]/1000, trackers2[i][2]/1000);
     }
+    
+    ofSetColor(255,255,0,100);
+    for (int i = 0; i < trackers3.size(); i++) {
+        ofDrawRectangle(trackers3[i][0], trackers3[i][1], trackers3[i][2]/1000, trackers3[i][2]/1000);
+    }
+    
+    ofSetColor(255,0,0,255);
+    
+    ofDrawBitmapString("trackers 1 : " + ofToString(trackers1.size()), 10, 10);
+    ofDrawBitmapString("trackers 2 : " + ofToString(trackers2.size()), 10, 20);
+    ofDrawBitmapString("trackers 3 : " + ofToString(trackers3.size()), 10, 30);
+
 
 }
 
