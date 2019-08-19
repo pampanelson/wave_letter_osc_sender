@@ -71,6 +71,8 @@ class ofApp : public ofBaseApp{
     ofParameter<float> track3PosY;
     ofParameter<float> track3W;
     ofParameter<float> track3H;
+    
+    ofParameter<float> Filter;
 
     
 

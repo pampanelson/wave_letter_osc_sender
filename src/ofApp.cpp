@@ -235,6 +235,44 @@ void ofApp::update(){
         m.clear();
 
         
+        
+        // ---------------------------------------- 4
+        m.setAddress("/composition/tracking41");
+        m.addFloatArg(angle);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        m.setAddress("/composition/tracking42");
+        m.addFloatArg(power);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        
+        // ---------------------------------------- 5
+        m.setAddress("/composition/tracking51");
+        m.addFloatArg(angle);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        m.setAddress("/composition/tracking52");
+        m.addFloatArg(power);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        
+        // ---------------------------------------- 6
+        m.setAddress("/composition/tracking61");
+        m.addFloatArg(angle);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        m.setAddress("/composition/tracking62");
+        m.addFloatArg(power);
+        sender.sendMessage(m, false);
+        m.clear();
+
+        
+        
     }
 }
 
