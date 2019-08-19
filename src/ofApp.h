@@ -34,6 +34,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+    float myPosToAngle(float x,float y);
     ofxOscSender sender;
 
     ofVideoGrabber cam;

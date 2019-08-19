@@ -52,6 +52,33 @@ void ofApp::setup(){
     gui.loadFromFile("settings.xml");}
 
 //--------------------------------------------------------------
+
+
+float ofApp::myPosToAngle(float x,float y){
+    float res;
+    // center on (320,480)
+    float centerX = 320;
+    float centerY = 480;
+    res = atan(
+                        (centerY - y) // always > 0 for top lefter (0,0)
+                        /
+                       (centerX - x) // if > 0 means point on the left of center
+                                    // if < 0 point on the right of center
+
+                       )/PI;
+    
+    
+    // clock direction of angle from -x axis ///////////////  *********** IMPORTANT **********
+    // so , res should always < 1 aka. PI
+    if(res < 0){
+        res = 1. + res;
+    }
+    
+    return res;
+}
+
+
+//--------------------------------------------------------------
 void ofApp::update(){
 
     
@@ -183,96 +210,110 @@ void ofApp::update(){
         // prepare data for osc send ----------------------------------------
         
         ofxOscMessage m;
-        m.setAddress("/composition/selectedclip/video/effects/pwl00/effect/float1");
-        m.addFloatArg(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0.f, 1.f, true));
-        //    m.addFloatArg(ofMap(ofGetMouseY(), 0, ofGetHeight(), 0.f, 1.f, true));
-        sender.sendMessage(m, false);
-        m.clear();
+//        m.setAddress("/composition/selectedclip/video/effects/pwl00/effect/float1");
+//        m.addFloatArg(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0.f, 1.f, true));
+//        //    m.addFloatArg(ofMap(ofGetMouseY(), 0, ofGetHeight(), 0.f, 1.f, true));
+//        sender.sendMessage(m, false);
+//        m.clear();
+//
+        
+        float angle;
+        float power;
+        
+        if(trackers1.size() == 1){
+            
+            angle = myPosToAngle(trackers1[0][0],trackers1[0][1]);
+            power = trackers1[0][2]/10000;
+            m.setAddress("/composition/tracking11");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking12");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
         
         
-        float angle = 0.0;
-        float power = 10.0;
         
-        // ---------------------------------------- 1
-        angle = 0.1f;
-        power = 11.0f;
-        m.setAddress("/composition/tracking11");
-        m.addFloatArg(angle);
-        sender.sendMessage(m, false);
-        m.clear();
+        if(trackers1.size() > 1){
+            
+            angle = myPosToAngle(trackers1[1][0],trackers1[1][1]);
+            power = trackers1[1][2]/10000;
+            m.setAddress("/composition/tracking21");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking22");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
         
-        m.setAddress("/composition/tracking12");
-        m.addFloatArg(power);
-        sender.sendMessage(m, false);
-        m.clear();
+        
+        
+        if(trackers2.size() == 1){
+            
+            angle = myPosToAngle(trackers2[0][0],trackers2[0][1]);
+            power = trackers2[0][2]/10000;
+            m.setAddress("/composition/tracking31");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking32");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        if(trackers2.size() > 1){
+            
+            angle = myPosToAngle(trackers2[1][0],trackers2[1][1]);
+            power = trackers2[1][2]/10000;
+            m.setAddress("/composition/tracking41");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking42");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        if(trackers3.size() == 1){
+            
+            angle = myPosToAngle(trackers3[0][0],trackers3[0][1]);
+            power = trackers3[0][2]/10000;
+            m.setAddress("/composition/tracking51");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking52");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        if(trackers3.size() > 1){
+            
+            angle = myPosToAngle(trackers3[1][0],trackers3[1][1]);
+            power = trackers3[1][2]/10000;
+            m.setAddress("/composition/tracking61");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking62");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
 
-        
-        // ---------------------------------------- 2
-        angle = 0.2f;
-        power = 12.0f;
-        m.setAddress("/composition/tracking21");
-        m.addFloatArg(angle);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        m.setAddress("/composition/tracking22");
-        m.addFloatArg(power);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        
-        // ---------------------------------------- 3
-        angle = 0.3f;
-        power = 13.0f;
-        m.setAddress("/composition/tracking31");
-        m.addFloatArg(angle);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        m.setAddress("/composition/tracking32");
-        m.addFloatArg(power);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        
-        
-        // ---------------------------------------- 4
-        m.setAddress("/composition/tracking41");
-        m.addFloatArg(angle);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        m.setAddress("/composition/tracking42");
-        m.addFloatArg(power);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        
-        // ---------------------------------------- 5
-        m.setAddress("/composition/tracking51");
-        m.addFloatArg(angle);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        m.setAddress("/composition/tracking52");
-        m.addFloatArg(power);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        
-        // ---------------------------------------- 6
-        m.setAddress("/composition/tracking61");
-        m.addFloatArg(angle);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        m.setAddress("/composition/tracking62");
-        m.addFloatArg(power);
-        sender.sendMessage(m, false);
-        m.clear();
-
-        
-        
     }
 }
 
