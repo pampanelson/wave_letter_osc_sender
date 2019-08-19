@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<group>
+	<Min_area>2.485</Min_area>
+	<Max_area>180.64</Max_area>
+	<Threshold>2.52012</Threshold>
+	<Holes>1</Holes>
+	<use_target_color>0</use_target_color>
+	<target_color_Threshold>61.2</target_color_Threshold>
+	<Track_Hue_Saturation>0</Track_Hue_Saturation>
+</group>
