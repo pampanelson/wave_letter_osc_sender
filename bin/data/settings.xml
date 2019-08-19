@@ -1,10 +1,35 @@
 <?xml version="1.0"?>
 <group>
-	<Min_area>2.485</Min_area>
-	<Max_area>180.64</Max_area>
+	<Min_area>35.4528</Min_area>
+	<Max_area>377.004</Max_area>
 	<Threshold>2.52012</Threshold>
 	<Holes>1</Holes>
 	<use_target_color>0</use_target_color>
 	<target_color_Threshold>61.2</target_color_Threshold>
 	<Track_Hue_Saturation>0</Track_Hue_Saturation>
+	<Tracking>0</Tracking>
+	<track_1_x>211.2</track_1_x>
+	<track_1_y>189.6</track_1_y>
+	<track_1_w>230.4</track_1_w>
+	<track_1_h>81.6</track_1_h>
+	<track_2_x>118.15</track_2_x>
+	<track_2_y>220.613</track_2_y>
+	<track_2_w>95.75</track_2_w>
+	<track_2_h>259.013</track_2_h>
+	<track_3_x>441.35</track_3_x>
+	<track_3_y>223.022</track_3_y>
+	<track_3_w>92.5625</track_3_w>
+	<track_3_h>256.622</track_3_h>
+	<track_1_r_x>211.812</track_1_r_x>
+	<track_1_r_y>154.059</track_1_r_y>
+	<track_1_r_w>256</track_1_r_w>
+	<track_1_r_h>86.8594</track_1_r_h>
+	<track_2_g_x>123.525</track_2_g_x>
+	<track_2_g_y>155.044</track_2_g_y>
+	<track_2_g_w>88.325</track_2_g_w>
+	<track_2_g_h>320.644</track_2_g_h>
+	<track_3_b_x>465.925</track_3_b_x>
+	<track_3_b_y>152.644</track_3_b_y>
+	<track_3_b_w>81.925</track_3_b_w>
+	<track_3_b_h>325.444</track_3_b_h>
 </group>

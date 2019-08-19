@@ -51,11 +51,27 @@ class ofApp : public ofBaseApp{
     
     
     ofxPanel gui;
+    ofParameter<bool> bTracking;
     ofParameter<float> minArea, maxArea, threshold;
     ofParameter<bool> holes;
     ofParameter<bool> bUseTgtColor;
     ofParameter<bool> trackHs;
     ofParameter<float> tgtColorThreshold;
+    
+    ofParameter<float> track1PosX;
+    ofParameter<float> track1PosY;
+    ofParameter<float> track1W;
+    ofParameter<float> track1H;
+    ofParameter<float> track2PosX;
+    ofParameter<float> track2PosY;
+    ofParameter<float> track2W;
+    ofParameter<float> track2H;
+    ofParameter<float> track3PosX;
+    ofParameter<float> track3PosY;
+    ofParameter<float> track3W;
+    ofParameter<float> track3H;
 
     
+
+    std::vector<Vec3f>   trackers;
 };
