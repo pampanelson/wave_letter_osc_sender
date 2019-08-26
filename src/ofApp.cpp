@@ -7,7 +7,7 @@ using namespace cv;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetFrameRate(60); // run at 60 fps
+    ofSetFrameRate(30); // run at 60 fps
 
     // open an outgoing connection to HOST:PORT
     sender.setup(HOST, PORT);
@@ -220,16 +220,39 @@ void ofApp::update(){
         float angle;
         float power;
         
-        if(trackers1.size() == 1){
+        
+        if(trackers1.size() == 0){
             
-            angle = myPosToAngle(trackers1[0][0],trackers1[0][1]);
-            power = trackers1[0][2]/10000;
-            m.setAddress("/composition/tracking11");
+            angle = 0.0;
+            power = 0.0;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk1angle");
             m.addFloatArg(angle);
             sender.sendMessage(m, false);
             m.clear();
             
-            m.setAddress("/composition/tracking12");
+
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk1power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
+        
+        if(trackers1.size() == 1){
+            
+            angle = myPosToAngle(trackers1[0][0],trackers1[0][1]);
+            power = trackers1[0][2]/10000;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk1angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+
+            
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk1power");
             m.addFloatArg(power);
             sender.sendMessage(m, false);
             m.clear();
@@ -253,17 +276,35 @@ void ofApp::update(){
         }
         
         
+        if(trackers2.size() == 0){
+            
+            angle = 0.0;
+            power = 0.0;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk2angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk2power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
         
         if(trackers2.size() == 1){
             
             angle = myPosToAngle(trackers2[0][0],trackers2[0][1]);
             power = trackers2[0][2]/10000;
-            m.setAddress("/composition/tracking31");
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk2angle");
             m.addFloatArg(angle);
             sender.sendMessage(m, false);
             m.clear();
             
-            m.setAddress("/composition/tracking32");
+
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk2power");
             m.addFloatArg(power);
             sender.sendMessage(m, false);
             m.clear();
@@ -284,16 +325,37 @@ void ofApp::update(){
             m.clear();
         }
         
-        if(trackers3.size() == 1){
+        
+        if(trackers3.size() == 0){
             
-            angle = myPosToAngle(trackers3[0][0],trackers3[0][1]);
-            power = trackers3[0][2]/10000;
-            m.setAddress("/composition/tracking51");
+            angle = 0.0;
+            power = 0.0;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk3angle");
             m.addFloatArg(angle);
             sender.sendMessage(m, false);
             m.clear();
             
-            m.setAddress("/composition/tracking52");
+            
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk3power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
+        if(trackers3.size() == 1){
+            
+            angle = myPosToAngle(trackers3[0][0],trackers3[0][1]);
+            power = trackers3[0][2]/10000;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk3angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+    
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk3power");
             m.addFloatArg(power);
             sender.sendMessage(m, false);
             m.clear();
@@ -314,6 +376,163 @@ void ofApp::update(){
             m.clear();
         }
 
+        
+        
+        
+        if(trackers1.size() == 0){
+            
+            angle = 0.0;
+            power = 0.0;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk1angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk1power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
+        
+        if(trackers1.size() == 1){
+            
+            angle = myPosToAngle(trackers1[0][0],trackers1[0][1]);
+            power = trackers1[0][2]/10000;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk1angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            
+            
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk1power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
+        
+        if(trackers1.size() > 1){
+            
+            angle = myPosToAngle(trackers1[1][0],trackers1[1][1]);
+            power = trackers1[1][2]/10000;
+            m.setAddress("/composition/tracking21");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking22");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
+        if(trackers2.size() == 0){
+            
+            angle = 0.0;
+            power = 0.0;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk2angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk2power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
+        
+        if(trackers2.size() == 1){
+            
+            angle = myPosToAngle(trackers2[0][0],trackers2[0][1]);
+            power = trackers2[0][2]/10000;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk2angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk2power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        if(trackers2.size() > 1){
+            
+            angle = myPosToAngle(trackers2[1][0],trackers2[1][1]);
+            power = trackers2[1][2]/10000;
+            m.setAddress("/composition/tracking41");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking42");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
+        if(trackers3.size() == 0){
+            
+            angle = 0.0;
+            power = 0.0;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk3angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk3power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        
+        if(trackers3.size() == 1){
+            
+            angle = myPosToAngle(trackers3[0][0],trackers3[0][1]);
+            power = trackers3[0][2]/10000;
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk3angle");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            
+            
+            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk3power");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
+        
+        if(trackers3.size() > 1){
+            
+            angle = myPosToAngle(trackers3[1][0],trackers3[1][1]);
+            power = trackers3[1][2]/10000;
+            m.setAddress("/composition/tracking61");
+            m.addFloatArg(angle);
+            sender.sendMessage(m, false);
+            m.clear();
+            
+            m.setAddress("/composition/tracking62");
+            m.addFloatArg(power);
+            sender.sendMessage(m, false);
+            m.clear();
+        }
     }
 }
 
