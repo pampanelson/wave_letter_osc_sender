@@ -12,6 +12,11 @@ void ofApp::setup(){
     // open an outgoing connection to HOST:PORT
     sender.setup(HOST, PORT);
 
+    cam.listDevices();
+    if(cam.listDevices().size() > 1){
+        cam.setDeviceID(1);
+    }
+    
     cam.setup(640, 480);
     
     
