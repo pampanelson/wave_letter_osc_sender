@@ -5,7 +5,7 @@
 #include "ofxOpenCv.h"
 #include "ofxCv.h"
 #include "ofxGui.h"
-
+#include "ofxKinect.h"
 using namespace ofxCv;
 using namespace cv;
 
@@ -21,7 +21,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
-
+    void exit();
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -75,6 +75,23 @@ class ofApp : public ofBaseApp{
     
     ofParameter<float> Filter;
 
+    
+    ofxKinect kinect;
+    ofxCvColorImage colorImg;
+    
+    ofxCvGrayscaleImage grayImage; // grayscale depth image
+    ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
+    ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
+    
+
+    
+    ofParameter<bool> bThreshWithOpenCV;
+
+    
+    ofParameter<int> nearThreshold;
+    ofParameter<int> farThreshold;
+    
+    ofParameter<int> angle;
     
 
     std::vector<Vec3f>   trackers1;

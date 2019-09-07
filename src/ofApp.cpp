@@ -20,6 +20,51 @@ void ofApp::setup(){
     cam.setup(640, 480);
     
     
+    // enable depth->video image calibration
+    kinect.setRegistration(true);
+    
+    kinect.init();
+    //kinect.init(true); // shows infrared instead of RGB video image
+    //kinect.init(false, false); // disable video image (faster fps)
+    
+    kinect.open();        // opens first available kinect
+    //kinect.open(1);    // open a kinect by id, starting with 0 (sorted by serial # lexicographically))
+    //kinect.open("A00362A08602047A");    // open a kinect using it's unique serial #
+    
+    cout << kinect.width << "," << kinect.height << endl;
+    colorImg.allocate(kinect.width, kinect.height);
+    grayImage.allocate(kinect.width, kinect.height);
+    grayThreshNear.allocate(kinect.width, kinect.height);
+    grayThreshFar.allocate(kinect.width, kinect.height);
+    
+    nearThreshold = 230;
+    farThreshold = 70;
+    bThreshWithOpenCV = true;
+    
+//    ofSetFrameRate(60);
+    
+    // zero the tilt on startup
+    angle = 0;
+    kinect.setCameraTiltAngle(angle);
+    
+    
+    
+    
+    
+    // print the intrinsic IR sensor values
+    if(kinect.isConnected()) {
+        ofLogNotice() << "sensor-emitter dist: " << kinect.getSensorEmitterDistance() << "cm";
+        ofLogNotice() << "sensor-camera dist:  " << kinect.getSensorCameraDistance() << "cm";
+        ofLogNotice() << "zero plane pixel size: " << kinect.getZeroPlanePixelSize() << "mm";
+        ofLogNotice() << "zero plane dist: " << kinect.getZeroPlaneDistance() << "mm";
+    }
+    
+    
+    
+    
+    // zero the tilt on startup
+
+    
     cCam.allocate(640, 480);
     grayCam.allocate(640, 480);
     //grayCam.allocatePixels(640,480);
@@ -38,18 +83,11 @@ void ofApp::setup(){
     gui.add(tgtColorThreshold.set("target color Threshold", 128, 0, 255));
 //    gui.add(trackHs.set("Track Hue/Saturation", false));
     
-    gui.add(track1PosX.set("track 1 r x",0,0,640));
-    gui.add(track1PosY.set("track 1 r y",0,0,480));
-    gui.add(track1W.set("track 1 r w",0,0,640));
-    gui.add(track1H.set("track 1 r h",0,0,480));
-    gui.add(track2PosX.set("track 2 g x",0,0,640));
-    gui.add(track2PosY.set("track 2 g y",0,0,480));
-    gui.add(track2W.set("track 2 g w",0,0,640));
-    gui.add(track2H.set("track 2 g h",0,0,480));
-    gui.add(track3PosX.set("track 3 b x",0,0,640));
-    gui.add(track3PosY.set("track 3 b y",0,0,480));
-    gui.add(track3W.set("track 3 b w",0,0,640));
-    gui.add(track3H.set("track 3 b h",0,0,480));
+    gui.add(nearThreshold.set("near",230,1,255));
+    gui.add(farThreshold.set("far",70,1,255));
+    gui.add(bThreshWithOpenCV.set("use opencv", false));
+    gui.add(angle.set("angle",1,0,180));
+
     
     if (!ofFile("settings.xml"))
         gui.saveToFile("settings.xml");
@@ -81,11 +119,61 @@ float ofApp::myPosToAngle(float x,float y){
     
     return res;
 }
+//--------------------------------------------------------------
+void ofApp::exit() {
+    kinect.setCameraTiltAngle(0); // zero the tilt on exit
+    kinect.close();
+    
+}
 
 
 //--------------------------------------------------------------
 void ofApp::update(){
 
+    kinect.setCameraTiltAngle(angle);
+    
+    
+    kinect.update();
+
+    // there is a new frame and we are connected
+    if(kinect.isFrameNew()) {
+        
+        // load grayscale depth image from the kinect source
+        grayImage.setFromPixels(kinect.getDepthPixels());
+        
+        // we do two thresholds - one for the far plane and one for the near plane
+        // we then do a cvAnd to get the pixels which are a union of the two thresholds
+        if(bThreshWithOpenCV) {
+            grayThreshNear = grayImage;
+            grayThreshFar = grayImage;
+            grayThreshNear.threshold(nearThreshold, true);
+            grayThreshFar.threshold(farThreshold);
+            cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
+        } else {
+            
+            // or we do it ourselves - show people how they can work with the pixels
+            ofPixels & pix = grayImage.getPixels();
+            int numPixels = pix.size();
+            for(int i = 0; i < numPixels; i++) {
+                if(pix[i] < nearThreshold && pix[i] > farThreshold) {
+                    pix[i] = 255;
+                } else {
+                    pix[i] = 0;
+                }
+            }
+        }
+        
+        // update the cv images
+        grayImage.flagImageChanged();
+        
+        // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+        // also, find holes is set to true so we will get interior contours as well....
+//        contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
+    }
+    
+    
+    
+    
     
     cam.update();
     
@@ -220,324 +308,18 @@ void ofApp::update(){
 //        //    m.addFloatArg(ofMap(ofGetMouseY(), 0, ofGetHeight(), 0.f, 1.f, true));
 //        sender.sendMessage(m, false);
 //        m.clear();
+        
+        m.setAddress("/composition/selectedclip/video/effects/addsubexample/effect/textdata");
+        
+        
+        m.addStringArg(ofToString((ofGetElapsedTimef()/1000.0)));
+        sender.sendMessage(m,false);
+        m.clear();
+        
+        
+        
+        
 //
-        
-        float angle;
-        float power;
-        
-        
-        if(trackers1.size() == 0){
-            
-            angle = 0.0;
-            power = 0.0;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk1angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk1power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        
-        if(trackers1.size() == 1){
-            
-            angle = myPosToAngle(trackers1[0][0],trackers1[0][1]);
-            power = trackers1[0][2]/10000;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk1angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-
-            
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk1power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        
-        if(trackers1.size() > 1){
-            
-            angle = myPosToAngle(trackers1[1][0],trackers1[1][1]);
-            power = trackers1[1][2]/10000;
-            m.setAddress("/composition/tracking21");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            m.setAddress("/composition/tracking22");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        if(trackers2.size() == 0){
-            
-            angle = 0.0;
-            power = 0.0;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk2angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk2power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        
-        if(trackers2.size() == 1){
-            
-            angle = myPosToAngle(trackers2[0][0],trackers2[0][1]);
-            power = trackers2[0][2]/10000;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk2angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk2power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        if(trackers2.size() > 1){
-            
-            angle = myPosToAngle(trackers2[1][0],trackers2[1][1]);
-            power = trackers2[1][2]/10000;
-            m.setAddress("/composition/tracking41");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            m.setAddress("/composition/tracking42");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        if(trackers3.size() == 0){
-            
-            angle = 0.0;
-            power = 0.0;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk3angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk3power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        if(trackers3.size() == 1){
-            
-            angle = myPosToAngle(trackers3[0][0],trackers3[0][1]);
-            power = trackers3[0][2]/10000;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk3angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-    
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/trk3power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        if(trackers3.size() > 1){
-            
-            angle = myPosToAngle(trackers3[1][0],trackers3[1][1]);
-            power = trackers3[1][2]/10000;
-            m.setAddress("/composition/tracking61");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            m.setAddress("/composition/tracking62");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-
-        
-        
-        
-        if(trackers1.size() == 0){
-            
-            angle = 0.0;
-            power = 0.0;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk1angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk1power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        
-        if(trackers1.size() == 1){
-            
-            angle = myPosToAngle(trackers1[0][0],trackers1[0][1]);
-            power = trackers1[0][2]/10000;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk1angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            
-            
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk1power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        
-        if(trackers1.size() > 1){
-            
-            angle = myPosToAngle(trackers1[1][0],trackers1[1][1]);
-            power = trackers1[1][2]/10000;
-            m.setAddress("/composition/tracking21");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            m.setAddress("/composition/tracking22");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        if(trackers2.size() == 0){
-            
-            angle = 0.0;
-            power = 0.0;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk2angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk2power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        
-        if(trackers2.size() == 1){
-            
-            angle = myPosToAngle(trackers2[0][0],trackers2[0][1]);
-            power = trackers2[0][2]/10000;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk2angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk2power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        if(trackers2.size() > 1){
-            
-            angle = myPosToAngle(trackers2[1][0],trackers2[1][1]);
-            power = trackers2[1][2]/10000;
-            m.setAddress("/composition/tracking41");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            m.setAddress("/composition/tracking42");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        if(trackers3.size() == 0){
-            
-            angle = 0.0;
-            power = 0.0;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk3angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk3power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        
-        if(trackers3.size() == 1){
-            
-            angle = myPosToAngle(trackers3[0][0],trackers3[0][1]);
-            power = trackers3[0][2]/10000;
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk3angle");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            
-            
-            m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/trk3power");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
-        
-        if(trackers3.size() > 1){
-            
-            angle = myPosToAngle(trackers3[1][0],trackers3[1][1]);
-            power = trackers3[1][2]/10000;
-            m.setAddress("/composition/tracking61");
-            m.addFloatArg(angle);
-            sender.sendMessage(m, false);
-            m.clear();
-            
-            m.setAddress("/composition/tracking62");
-            m.addFloatArg(power);
-            sender.sendMessage(m, false);
-            m.clear();
-        }
     }
 }
 
@@ -553,7 +335,6 @@ void ofApp::draw(){
     
     diff.draw(640, 0);
     
-    gui.draw();
 
     if(bUseTgtColor){
         ofTranslate(640, 480);
@@ -596,6 +377,11 @@ void ofApp::draw(){
     ofDrawBitmapString("trackers 2 : " + ofToString(trackers2.size()), 10, 20);
     ofDrawBitmapString("trackers 3 : " + ofToString(trackers3.size()), 10, 30);
 
+
+    
+//    kinect.getDepthTexture().draw(0, 0);
+    grayImage.draw(0,0);
+    gui.draw();
 
 }
 
