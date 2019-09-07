@@ -37,19 +37,13 @@ class ofApp : public ofBaseApp{
     float myPosToAngle(float x,float y);
     ofxOscSender sender;
 
-    ofVideoGrabber cam;
-    ofxCvColorImage cCam;
-    ofxCvGrayscaleImage grayCam;
     ofxCv::ContourFinder contourFinder;
     ofxCv::ContourFinder contourFinderTgtColor;
 
     ofColor targetColor;
 
     
-    ofPixels previous;
-    ofImage diff;
-    cv::Scalar diffMean;
-    
+
     
     ofxPanel gui;
     ofParameter<bool> bSendingOSC;
@@ -59,21 +53,6 @@ class ofApp : public ofBaseApp{
     ofParameter<bool> bUseTgtColor;
     ofParameter<bool> trackHs;
     ofParameter<float> tgtColorThreshold;
-    
-    ofParameter<float> track1PosX;
-    ofParameter<float> track1PosY;
-    ofParameter<float> track1W;
-    ofParameter<float> track1H;
-    ofParameter<float> track2PosX;
-    ofParameter<float> track2PosY;
-    ofParameter<float> track2W;
-    ofParameter<float> track2H;
-    ofParameter<float> track3PosX;
-    ofParameter<float> track3PosY;
-    ofParameter<float> track3W;
-    ofParameter<float> track3H;
-    
-    ofParameter<float> Filter;
 
     
     ofxKinect kinect;
@@ -93,9 +72,5 @@ class ofApp : public ofBaseApp{
     
     ofParameter<int> angle;
     
-
-    std::vector<Vec3f>   trackers1;
-    std::vector<Vec3f>   trackers2;
-    std::vector<Vec3f>   trackers3;
     
 };

@@ -12,13 +12,7 @@ void ofApp::setup(){
     // open an outgoing connection to HOST:PORT
     sender.setup(HOST, PORT);
 
-    cam.listDevices();
-    if(cam.listDevices().size() > 1){
-        cam.setDeviceID(1);
-    }
-    
-    cam.setup(640, 480);
-    
+
     
     // enable depth->video image calibration
     kinect.setRegistration(true);
@@ -64,14 +58,6 @@ void ofApp::setup(){
     
     // zero the tilt on startup
 
-    
-    cCam.allocate(640, 480);
-    grayCam.allocate(640, 480);
-    //grayCam.allocatePixels(640,480);
-    imitate(previous, grayCam);
-    imitate(diff, grayCam);
-    
-    
     gui.setup();
     gui.add(bSendingOSC.set("Sending osc",false));
     gui.add(bTracking.set("Tracking",false));
@@ -173,131 +159,7 @@ void ofApp::update(){
     
     
     
-    
-    
-    cam.update();
-    
-    bool bTrackingAreaSet = track1H * track2H * track2W * track3H * track3W;
-//    cout << bTrackingAreaSet << endl;
-    if(cam.isFrameNew() && bTracking.get() && bTrackingAreaSet) {
-        
-
-        
-        
-        
-        // prepare tracking --------------------------------
-        // take the absolute difference of prev and cam and save it inside diff
-        cCam.setFromPixels(cam.getPixels());
-//        cCam.setROI(100, 100, 100, 100);
-
-        grayCam = cCam; // convert our color image to a grayscale image
-
-        // set ROI
-
-        absdiff(grayCam, previous, diff);
-        diff.update();
-
-        // like ofSetPixels, but more concise and cross-toolkit
-        copy(grayCam, previous);
-
-
-        contourFinder.setMinAreaRadius(minArea);
-        contourFinder.setMaxAreaRadius(maxArea);
-        contourFinder.setThreshold(threshold);
-        contourFinder.setFindHoles(holes);
-
-
-        cv::Mat diff1 = toCv(diff);
-        cv::Rect crop_roi;
-        cv::Mat crop;
-        
-        // tracking area 1 -----------------------------------
-        crop_roi = cv::Rect(track1PosX,track1PosY,track1W,track1H);
-        crop = diff1(crop_roi).clone();
-
-
-        // analyse original cam
-        //        contourFinder.findContours(cam);
-
-        // analyse diff
-        //        contourFinder.findContours(diff);
-
-        // analyse roi
-        
-        trackers1.clear();
-        contourFinder.findContours(crop);
-
-        for (int i = 0; i<contourFinder.size(); i++) {
-            cv::Rect rect = contourFinder.getBoundingRect(i);
-            float x = track1PosX + rect.x+rect.width * 0.5;
-            float y = track1PosY + rect.y + rect.height * 0.5;
-            float area = rect.area();
-            
-            Vec3f t = Vec3f(x,y,area);
-            
-            trackers1.push_back(t);
-        }
-        
-        
-        // tracking area 2 -----------------------------------
-
-        crop_roi = cv::Rect(track2PosX,track2PosY,track2W,track2H);
-        crop = diff1(crop_roi).clone();
-        
-        trackers2.clear();
-        contourFinder.findContours(crop);
-
-        for (int i = 0; i<contourFinder.size(); i++) {
-            cv::Rect rect = contourFinder.getBoundingRect(i);
-            float x = track2PosX + rect.x+rect.width * 0.5;
-            float y = track2PosY + rect.y + rect.height * 0.5;
-            float area = rect.area();
-            
-            Vec3f t = Vec3f(x,y,area);
-            
-            trackers2.push_back(t);
-        }
-        
-        
-        
-        // tracking area 3 -----------------------------------
-
-        crop_roi = cv::Rect(track3PosX,track3PosY,track3W,track3H);
-        crop = diff1(crop_roi).clone();
-        
-        trackers3.clear();
-        contourFinder.findContours(crop);
-
-        for (int i = 0; i<contourFinder.size(); i++) {
-            cv::Rect rect = contourFinder.getBoundingRect(i);
-            float x = track3PosX + rect.x+rect.width * 0.5;
-            float y = track3PosY + rect.y + rect.height * 0.5;
-            float area = rect.area();
-            
-            Vec3f t = Vec3f(x,y,area);
-            
-            trackers3.push_back(t);
-        }
-        
-        
-        
-        
-        if(bUseTgtColor){
-//            contourFinderTgtColor.setTargetColor(targetColor, trackHs ? TRACK_COLOR_HS : TRACK_COLOR_RGB);
-            contourFinderTgtColor.setTargetColor(targetColor);
-            contourFinderTgtColor.setThreshold(tgtColorThreshold.get());
-            contourFinderTgtColor.findContours(grayCam);
-
-        }
-
-        
-        
-        
-//        cout << trackers.size() << endl;
-//        cout << trackers[0][0] << "," << trackers[0][1] << "," << trackers[0][2] << endl;
-        
-    }
-    
+ 
     
     if(bSendingOSC){
         // prepare data for osc send ----------------------------------------
@@ -327,14 +189,6 @@ void ofApp::update(){
 void ofApp::draw(){
     
 
-    
-    ofSetColor(255);
-    cam.draw(0, 0);
-    grayCam.draw(0,480);
-    
-    
-    diff.draw(640, 0);
-    
 
     if(bUseTgtColor){
         ofTranslate(640, 480);
@@ -343,40 +197,6 @@ void ofApp::draw(){
 
     }
     
-
-    
-    // draw tracking area
-    ofSetColor(255, 0, 0,50);
-    ofDrawRectangle(track1PosX, track1PosY, track1W, track1H);
-
-    ofSetColor(0, 255, 0,50);
-    ofDrawRectangle(track2PosX, track2PosY, track2W, track2H);
-    
-    ofSetColor(0, 0, 255,50);
-    ofDrawRectangle(track3PosX, track3PosY, track3W, track3H);
-    
-
-    ofSetColor(0,255,255,100);
-    for (int i = 0; i < trackers1.size(); i++) {
-        ofDrawRectangle(trackers1[i][0], trackers1[i][1], trackers1[i][2]/1000, trackers1[i][2]/1000);
-    }
-    
-    ofSetColor(255,0,255,100);
-    for (int i = 0; i < trackers2.size(); i++) {
-        ofDrawRectangle(trackers2[i][0], trackers2[i][1], trackers2[i][2]/1000, trackers2[i][2]/1000);
-    }
-    
-    ofSetColor(255,255,0,100);
-    for (int i = 0; i < trackers3.size(); i++) {
-        ofDrawRectangle(trackers3[i][0], trackers3[i][1], trackers3[i][2]/1000, trackers3[i][2]/1000);
-    }
-    
-    ofSetColor(255,0,0,255);
-    
-    ofDrawBitmapString("trackers 1 : " + ofToString(trackers1.size()), 10, 10);
-    ofDrawBitmapString("trackers 2 : " + ofToString(trackers2.size()), 10, 20);
-    ofDrawBitmapString("trackers 3 : " + ofToString(trackers3.size()), 10, 30);
-
 
     
 //    kinect.getDepthTexture().draw(0, 0);
@@ -408,7 +228,7 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    targetColor = cam.getPixels().getColor(x, y);
+//    targetColor = cam.getPixels().getColor(x, y);
 
 }
 
