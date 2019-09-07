@@ -87,7 +87,12 @@ void ofApp::setup(){
     
     // init tracking data size;
     trackingDataSize = 10;
-
+    
+    for(int i = 0;i<trackingDataSize;i++){
+        trackingData.push_back(0.0);
+        
+    }
+    
 }
 
 //--------------------------------------------------------------
@@ -127,6 +132,7 @@ void ofApp::exit() {
 void ofApp::update(){
 
     // clear tracking data with 0.0
+    trackingData.clear();
     for(int i = 0;i<trackingDataSize;i++){
         trackingData.push_back(0.0);
         
@@ -284,7 +290,9 @@ void ofApp::update(){
             }
         }
 
-        m.setAddress("");
+        cout << data <<  endl;
+        // debug ================
+        m.setAddress("/composition/selectedclip/video/effects/precvosctext/effect/osctext");
         
         
         m.addStringArg(data);
