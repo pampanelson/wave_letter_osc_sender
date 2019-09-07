@@ -66,6 +66,7 @@ class ofApp : public ofBaseApp{
 
     
     ofParameter<bool> bThreshWithOpenCV;
+    ofParameter<bool> bFlip;
 
     
     ofParameter<int> nearThreshold;

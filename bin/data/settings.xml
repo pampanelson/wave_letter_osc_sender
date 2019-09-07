@@ -40,4 +40,5 @@
 	<angle>18</angle>
 	<arc_min>230</arc_min>
 	<arc_max>295</arc_max>
+	<flip>0</flip>
 </group>

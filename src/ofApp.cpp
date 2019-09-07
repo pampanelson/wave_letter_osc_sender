@@ -73,6 +73,7 @@ void ofApp::setup(){
     gui.add(nearThreshold.set("near",230,1,255));
     gui.add(farThreshold.set("far",70,1,255));
     gui.add(bThreshWithOpenCV.set("use opencv", false));
+    gui.add(bFlip.set("flip", false));
     gui.add(angle.set("angle",1,0,180));
     gui.add(arcMin.set("arc min",10,1,480));
     gui.add(arcMax.set("arc max",50,1,480));
@@ -139,6 +140,15 @@ void ofApp::update(){
         // load grayscale depth image from the kinect source
         grayImage.setFromPixels(kinect.getDepthPixels());
         
+        
+        
+        if(bFlip){
+            
+            grayImage.mirror(false, true);
+        }
+        
+        
+        
         // we do two thresholds - one for the far plane and one for the near plane
         // we then do a cvAnd to get the pixels which are a union of the two thresholds
         if(bThreshWithOpenCV) {
@@ -164,9 +174,9 @@ void ofApp::update(){
         
         // update the cv images
         grayImage.flagImageChanged();
-        
         grayImage1 = grayImage;
-
+        
+        
         
         // get roi frm gray image
         
@@ -193,6 +203,7 @@ void ofApp::update(){
         grayImage1.flagImageChanged();
         
         grayImage1.blur();
+        
         
         
         // tracking
@@ -244,10 +255,6 @@ void ofApp::update(){
 
     }
     
-    
-    // =================  debug tracking data
-    cout << ofToString(0) << ": " << trackingData[0] << endl;
-    cout << ofToString(1) << ": " << trackingData[1] << endl;
 
     
     if(bSendingOSC){
