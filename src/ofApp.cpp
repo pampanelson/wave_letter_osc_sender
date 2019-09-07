@@ -87,7 +87,7 @@ void ofApp::setup(){
     
     // init tracking data size;
     trackingDataSize = 10;
-    trackingData.resize(trackingDataSize);
+
 }
 
 //--------------------------------------------------------------
@@ -126,7 +126,11 @@ void ofApp::exit() {
 //--------------------------------------------------------------
 void ofApp::update(){
 
-    trackingData.clear();
+    // clear tracking data with 0.0
+    for(int i = 0;i<trackingDataSize;i++){
+        trackingData.push_back(0.0);
+        
+    }
     
     
     kinect.setCameraTiltAngle(angle);
@@ -239,21 +243,25 @@ void ofApp::update(){
     
     
     // ----------------------------------------  preapare tracking data
-    
+
     
     for (int i = 0; i<contourFinderTgtColor.size(); i++) {
         
-        if(i<trackingDataSize){
+    
             cv::Rect rect = contourFinderTgtColor.getBoundingRect(i);
             float x = rect.x+rect.width * 0.5;
             float y = rect.y + rect.height * 0.5;
             
             float trackingAngle = myPosToAngle(x, y);
-            trackingData.push_back(trackingAngle);
+            
+            int angleIndex = int(floor(trackingAngle*trackingDataSize));
+            
+            trackingData[angleIndex] = 1.0;
 
-        }
 
     }
+    
+    
     
 
     
@@ -267,10 +275,19 @@ void ofApp::update(){
 //        sender.sendMessage(m, false);
 //        m.clear();
         
-        m.setAddress("/composition/selectedclip/video/effects/addsubexample/effect/textdata");
+        string data;
+        for(int i = 0;i < trackingData.size();i++){
+            data += ofToString(trackingData[i]);
+            if(i != trackingData.size() - 1){
+                data += ",";
+                
+            }
+        }
+
+        m.setAddress("");
         
         
-        m.addStringArg(ofToString((ofGetElapsedTimef()/1000.0)));
+        m.addStringArg(data);
         sender.sendMessage(m,false);
         m.clear();
         
