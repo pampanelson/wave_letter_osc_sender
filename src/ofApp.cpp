@@ -28,6 +28,7 @@ void ofApp::setup(){
     cout << kinect.width << "," << kinect.height << endl;
     colorImg.allocate(kinect.width, kinect.height);
     grayImage.allocate(kinect.width, kinect.height);
+    grayImage1.allocate(kinect.width, kinect.height);
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
     
@@ -73,12 +74,20 @@ void ofApp::setup(){
     gui.add(farThreshold.set("far",70,1,255));
     gui.add(bThreshWithOpenCV.set("use opencv", false));
     gui.add(angle.set("angle",1,0,180));
+    gui.add(arcMin.set("arc min",10,1,480));
+    gui.add(arcMax.set("arc max",50,1,480));
 
     
     if (!ofFile("settings.xml"))
         gui.saveToFile("settings.xml");
     
-    gui.loadFromFile("settings.xml");}
+    gui.loadFromFile("settings.xml");
+    
+    
+    // init tracking data size;
+    trackingDataSize = 10;
+    trackingData.resize(trackingDataSize);
+}
 
 //--------------------------------------------------------------
 
@@ -116,6 +125,9 @@ void ofApp::exit() {
 //--------------------------------------------------------------
 void ofApp::update(){
 
+    trackingData.clear();
+    
+    
     kinect.setCameraTiltAngle(angle);
     
     
@@ -147,19 +159,96 @@ void ofApp::update(){
                     pix[i] = 0;
                 }
             }
+            
         }
         
         // update the cv images
         grayImage.flagImageChanged();
         
-        // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
-        // also, find holes is set to true so we will get interior contours as well....
-//        contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
+        grayImage1 = grayImage;
+
+        
+        // get roi frm gray image
+        
+        {
+            ofPixels & pix = grayImage1.getPixels();
+            int numPixels = pix.size();
+            for(int i = 0; i < numPixels; i++) {
+                
+                int h = floor(i/640);
+                int w = i % 640;
+                
+                float arc = sqrt((w-320)*(w-320) + (h-480)*(h-480));
+                if(arc > arcMax || arc < arcMin ){
+                    
+                    pix[i] = 0;
+                    
+                }
+                
+            }
+        }
+        
+        
+        // get image to track contour
+        grayImage1.flagImageChanged();
+        
+        grayImage1.blur();
+        
+        
+        // tracking
+        
+        if(bTracking){
+            contourFinder.setMinAreaRadius(minArea);
+            contourFinder.setMaxAreaRadius(maxArea);
+            contourFinder.setThreshold(threshold);
+            contourFinder.setFindHoles(holes);
+            
+            
+            contourFinder.findContours(grayImage1);
+            
+            
+        }
+
+        
+        if(bUseTgtColor){
+            //            contourFinderTgtColor.setTargetColor(targetColor, trackHs ? TRACK_COLOR_HS : TRACK_COLOR_RGB);
+            contourFinderTgtColor.setTargetColor(targetColor);
+            
+            contourFinderTgtColor.setMinAreaRadius(minArea);
+            contourFinderTgtColor.setMaxAreaRadius(maxArea);
+            contourFinderTgtColor.setFindHoles(holes);
+            contourFinderTgtColor.setThreshold(tgtColorThreshold.get());
+            contourFinderTgtColor.findContours(grayImage1);
+            
+        }
+
+
     }
     
     
     
- 
+    // ----------------------------------------  preapare tracking data
+    
+    
+    for (int i = 0; i<contourFinderTgtColor.size(); i++) {
+        
+        if(i<trackingDataSize){
+            cv::Rect rect = contourFinderTgtColor.getBoundingRect(i);
+            float x = rect.x+rect.width * 0.5;
+            float y = rect.y + rect.height * 0.5;
+            
+            float trackingAngle = myPosToAngle(x, y);
+            trackingData.push_back(trackingAngle);
+
+        }
+
+    }
+    
+    
+    // =================  debug tracking data
+    cout << ofToString(0) << ": " << trackingData[0] << endl;
+    cout << ofToString(1) << ": " << trackingData[1] << endl;
+
     
     if(bSendingOSC){
         // prepare data for osc send ----------------------------------------
@@ -190,17 +279,25 @@ void ofApp::draw(){
     
 
 
+
+    
+    
+//    kinect.getDepthTexture().draw(0, 0);
+    grayImage.draw(0,0);
+    grayImage1.draw(640,0);
+    
+    
+    ofSetColor(255,0,0);
+    contourFinder.draw();
     if(bUseTgtColor){
         ofTranslate(640, 480);
         contourFinderTgtColor.draw();
         ofTranslate(-640, -480);
-
+        
     }
     
+    ofSetColor(255,255,255);
 
-    
-//    kinect.getDepthTexture().draw(0, 0);
-    grayImage.draw(0,0);
     gui.draw();
 
 }

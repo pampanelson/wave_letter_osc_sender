@@ -59,6 +59,7 @@ class ofApp : public ofBaseApp{
     ofxCvColorImage colorImg;
     
     ofxCvGrayscaleImage grayImage; // grayscale depth image
+    ofxCvGrayscaleImage grayImage1; // grayscale depth image
     ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
     ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
     
@@ -72,5 +73,9 @@ class ofApp : public ofBaseApp{
     
     ofParameter<int> angle;
     
-    
+    ofParameter<int> arcMin;
+    ofParameter<int> arcMax;
+
+    vector<float> trackingData;
+    int trackingDataSize;
 };
