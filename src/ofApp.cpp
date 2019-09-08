@@ -86,7 +86,7 @@ void ofApp::setup(){
     
     
     // init tracking data size;
-    trackingDataSize = 10;
+    trackingDataSize = 12;
     
     for(int i = 0;i<trackingDataSize;i++){
         trackingData.push_back(0.0);
@@ -134,7 +134,7 @@ void ofApp::update(){
     // clear tracking data with 0.0
     trackingData.clear();
     for(int i = 0;i<trackingDataSize;i++){
-        trackingData.push_back(0.0);
+        trackingData.push_back(0.0f);
         
     }
     
@@ -262,7 +262,7 @@ void ofApp::update(){
             
             int angleIndex = int(floor(trackingAngle*trackingDataSize));
             
-            trackingData[angleIndex] = 1.0;
+            trackingData[angleIndex] = 1.0f;
 
 
     }
@@ -292,9 +292,8 @@ void ofApp::update(){
 
         cout << data <<  endl;
         // debug ================
-        m.setAddress("/composition/selectedclip/video/effects/precvosctext/effect/osctext");
-        
-        
+//        m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/osctextdata0");
+        m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/osctextdata0");
         m.addStringArg(data);
         sender.sendMessage(m,false);
         m.clear();
