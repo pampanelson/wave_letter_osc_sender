@@ -275,6 +275,7 @@ void ofApp::update(){
         // prepare data for osc send ----------------------------------------
         
         ofxOscMessage m;
+        ofxOscMessage m1;
 //        m.setAddress("/composition/selectedclip/video/effects/pwl00/effect/float1");
 //        m.addFloatArg(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0.f, 1.f, true));
 //        //    m.addFloatArg(ofMap(ofGetMouseY(), 0, ofGetHeight(), 0.f, 1.f, true));
@@ -296,7 +297,13 @@ void ofApp::update(){
         m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/osctextdata0");
         m.addStringArg(data);
         sender.sendMessage(m,false);
-        m.clear();
+        
+        
+        m1.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/oscdataline0");
+        m1.addStringArg(data);
+        sender.sendMessage(m1,false);
+        
+        m1.clear();
         
         
         
