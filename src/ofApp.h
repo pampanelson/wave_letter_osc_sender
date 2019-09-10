@@ -5,12 +5,13 @@
 #include "ofxOpenCv.h"
 #include "ofxCv.h"
 #include "ofxGui.h"
-
+#include "ofxKinect.h"
 using namespace ofxCv;
 using namespace cv;
 
 // send host (aka ip address)
-#define HOST "localhost"
+//#define HOST "localhost"
+#define HOST "192.168.0.174"
 
 /// send port
 #define PORT 8000
@@ -21,7 +22,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
-
+    void exit();
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -37,19 +38,13 @@ class ofApp : public ofBaseApp{
     float myPosToAngle(float x,float y);
     ofxOscSender sender;
 
-    ofVideoGrabber cam;
-    ofxCvColorImage cCam;
-    ofxCvGrayscaleImage grayCam;
     ofxCv::ContourFinder contourFinder;
     ofxCv::ContourFinder contourFinderTgtColor;
 
     ofColor targetColor;
 
     
-    ofPixels previous;
-    ofImage diff;
-    cv::Scalar diffMean;
-    
+
     
     ofxPanel gui;
     ofParameter<bool> bSendingOSC;
@@ -59,26 +54,30 @@ class ofApp : public ofBaseApp{
     ofParameter<bool> bUseTgtColor;
     ofParameter<bool> trackHs;
     ofParameter<float> tgtColorThreshold;
-    
-    ofParameter<float> track1PosX;
-    ofParameter<float> track1PosY;
-    ofParameter<float> track1W;
-    ofParameter<float> track1H;
-    ofParameter<float> track2PosX;
-    ofParameter<float> track2PosY;
-    ofParameter<float> track2W;
-    ofParameter<float> track2H;
-    ofParameter<float> track3PosX;
-    ofParameter<float> track3PosY;
-    ofParameter<float> track3W;
-    ofParameter<float> track3H;
-    
-    ofParameter<float> Filter;
 
     
-
-    std::vector<Vec3f>   trackers1;
-    std::vector<Vec3f>   trackers2;
-    std::vector<Vec3f>   trackers3;
+    ofxKinect kinect;
+    ofxCvColorImage colorImg;
     
+    ofxCvGrayscaleImage grayImage; // grayscale depth image
+    ofxCvGrayscaleImage grayImage1; // grayscale depth image
+    ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
+    ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
+    
+
+    
+    ofParameter<bool> bThreshWithOpenCV;
+    ofParameter<bool> bFlip;
+
+    
+    ofParameter<int> nearThreshold;
+    ofParameter<int> farThreshold;
+    
+    ofParameter<int> angle;
+    
+    ofParameter<int> arcMin;
+    ofParameter<int> arcMax;
+
+    vector<float> trackingData;
+    int trackingDataSize;
 };

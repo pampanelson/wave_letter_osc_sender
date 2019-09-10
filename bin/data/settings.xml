@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <group>
-	<Min_area>12.88</Min_area>
-	<Max_area>287.925</Max_area>
+	<Min_area>10.405</Min_area>
+	<Max_area>437.625</Max_area>
 	<Threshold>6.375</Threshold>
 	<Holes>1</Holes>
-	<use_target_color>0</use_target_color>
+	<use_target_color>1</use_target_color>
 	<target_color_Threshold>61.2</target_color_Threshold>
 	<Track_Hue_Saturation>0</Track_Hue_Saturation>
 	<Tracking>0</Tracking>
@@ -34,4 +34,11 @@
 	<track_3_b_h>325.444</track_3_b_h>
 	<sending_osc>0</sending_osc>
 	<Sending_osc>0</Sending_osc>
+	<near>230</near>
+	<far>70</far>
+	<use_opencv>0</use_opencv>
+	<angle>18</angle>
+	<arc_min>230</arc_min>
+	<arc_max>295</arc_max>
+	<flip>0</flip>
 </group>
