@@ -75,5 +75,11 @@ class ofApp : public ofBaseApp{
     ofParameter<int> angle;
     
 
-
+    ofxSyphonServer syphonServer;
+    ofTexture       syphonTex;
+    ofFbo           syphonFbo;
+    ofxShadertoy    shadertoy;
+    
+    int w = 3840;
+    int h = 960;
 };

@@ -7,10 +7,22 @@ using namespace cv;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+
+//    syphonTex.allocate(w,h,GL_RGBA);
+    
+    shadertoy.load("shaders/line.frag");
     ofSetFrameRate(30); // run at 60 fps
 
+    syphonFbo.allocate(w,h);
+    
+    shadertoy.setWidth(w);
+    shadertoy.setHeight(h);
+    shadertoy.setAdvanceTime(true);
 
     
+    syphonServer.setName("waveLine");
+    
+
     // enable depth->video image calibration
     kinect.setRegistration(true);
     
@@ -147,16 +159,16 @@ void ofApp::update(){
         } else {
             
             // or we do it ourselves - show people how they can work with the pixels
-            ofPixels & pix = grayImage.getPixels();
-            int numPixels = pix.size();
-            for(int i = 0; i < numPixels; i++) {
-                if(pix[i] < nearThreshold && pix[i] > farThreshold) {
-                    pix[i] = 255;
-                } else {
-                    pix[i] = 0;
-                }
-            }
-            
+//            ofPixels & pix = grayImage.getPixels();
+//            int numPixels = pix.size();
+//            for(int i = 0; i < numPixels; i++) {
+//                if(pix[i] < nearThreshold && pix[i] > farThreshold) {
+//                    pix[i] = 255;
+//                } else {
+//                    pix[i] = 0;
+//                }
+//            }
+//
         }
         
         // update the cv images
@@ -227,10 +239,14 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
+    syphonFbo.begin();
 
+    shadertoy.draw(0,0,w,h);
 
-
+    syphonFbo.end();
     
+    syphonServer.publishTexture(&syphonFbo.getTexture());
+
     
 //    kinect.getDepthTexture().draw(0, 0);
     grayImage.draw(0,0);
@@ -247,6 +263,9 @@ void ofApp::draw(){
     }
     
     ofSetColor(255,255,255);
+
+    
+    shadertoy.draw(0, 0);
 
     gui.draw();
 
