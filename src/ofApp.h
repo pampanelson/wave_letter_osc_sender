@@ -5,6 +5,11 @@
 #include "ofxCv.h"
 #include "ofxGui.h"
 #include "ofxKinect.h"
+#include "ofxSyphon.h"
+#include "ofxShadertoy.h"
+#include "ofxFx.h"
+
+
 using namespace ofxCv;
 using namespace cv;
 

@@ -1,6 +1,8 @@
 ofxCv-master
+ofxFX
 ofxGui
 ofxKinect
 ofxOpenCv
-ofxOsc
+ofxShadertoy
+ofxSyphon
 ofxXmlSettings
