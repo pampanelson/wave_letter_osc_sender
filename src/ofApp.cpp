@@ -65,6 +65,9 @@ void ofApp::setup(){
     gui.setup();
     gui.add(bSendingOSC.set("Sending osc",false));
     gui.add(bTracking.set("Tracking",false));
+//    gui.add(ellipseRadius.set("ellipse raidus",0.1,0,1));
+//    gui.add(ellipseWideX.set("ellipse wide x",0.05,0,1));
+//    gui.add(ellipseWideY.set("ellipse wide y",0.05,0,2));
 
     gui.add(bTrack1Diff.set("t1 diff",false));
     gui.add(track1PosX.set("t1 x",0,0,640));
@@ -256,10 +259,27 @@ void ofApp::update(){
         
         // get roi frm gray image
         
-
         
+//        for (int i = 0; i < gray1.cols; i++) {
+//            for (int j = 0; j < gray1.rows; j++) {
+//                Scalar col = gray1.at<uchar>(j,i);
+//
+//                float x = j;
+//                float y = i;
+//
+//
+//
+//                float length = sqrt((x-480)*ellipseWideX*ellipseWideX*(x-480) + (y-320)*ellipseWideY*ellipseWideY*(y-320));
+//
+//                if(length < ellipseRadius * 240){
+//                    gray1.at<uchar>(j, i, 0) = 255;
+//                }
+//            }
+//        }
+//
     
-        
+//        grayImage.flagImageChanged();
+
         
         // tracking
         
@@ -454,6 +474,7 @@ void ofApp::draw(){
 //    kinect.getDepthTexture().draw(0, 0);
     grayImage.draw(640,0);
     diff.draw(0, 0);
+
 
 
 //    // draw tracking area

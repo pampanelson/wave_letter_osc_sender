@@ -7,7 +7,7 @@
 	<use_target_color>1</use_target_color>
 	<target_color_Threshold>61.2</target_color_Threshold>
 	<Track_Hue_Saturation>0</Track_Hue_Saturation>
-	<Tracking>1</Tracking>
+	<Tracking>0</Tracking>
 	<track_1_x>211.2</track_1_x>
 	<track_1_y>189.6</track_1_y>
 	<track_1_w>230.4</track_1_w>
@@ -33,7 +33,7 @@
 	<track_3_b_w>81.925</track_3_b_w>
 	<track_3_b_h>325.444</track_3_b_h>
 	<sending_osc>0</sending_osc>
-	<Sending_osc>1</Sending_osc>
+	<Sending_osc>0</Sending_osc>
 	<near>217</near>
 	<far>70</far>
 	<use_opencv>1</use_opencv>
@@ -76,4 +76,8 @@
 	<t5_diff>1</t5_diff>
 	<t6_diff>1</t6_diff>
 	<t7_diff>1</t7_diff>
+	<ellipse_raidus>0.59</ellipse_raidus>
+	<ellipse_wide>0.135</ellipse_wide>
+	<ellipse_wide_x>0.405</ellipse_wide_x>
+	<ellipse_wide_y>1.21</ellipse_wide_y>
 </group>

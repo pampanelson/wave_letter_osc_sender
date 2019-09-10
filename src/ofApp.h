@@ -66,7 +66,9 @@ class ofApp : public ofBaseApp{
     ofParameter<bool> bThreshWithOpenCV;
     ofParameter<bool> bFlip;
 
-    
+//    ofParameter<float> ellipseRadius;
+//    ofParameter<float> ellipseWideX;
+//    ofParameter<float> ellipseWideY;
     ofParameter<int> nearThreshold;
     ofParameter<int> farThreshold;
     
