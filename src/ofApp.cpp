@@ -9,9 +9,6 @@ using namespace cv;
 void ofApp::setup(){
     ofSetFrameRate(30); // run at 60 fps
 
-    // open an outgoing connection to HOST:PORT
-    sender.setup(HOST, PORT);
-
 
     
     // enable depth->video image calibration
@@ -38,9 +35,7 @@ void ofApp::setup(){
     
 //    ofSetFrameRate(60);
     
-    // zero the tilt on startup
-    angle = 0;
-    kinect.setCameraTiltAngle(angle);
+
     
     
     
@@ -60,7 +55,6 @@ void ofApp::setup(){
     // zero the tilt on startup
 
     gui.setup();
-    gui.add(bSendingOSC.set("Sending osc",false));
     gui.add(bTracking.set("Tracking",false));
     gui.add(minArea.set("Min area", 10, 1, 100));
     gui.add(maxArea.set("Max area", 200, 1, 500));
@@ -75,8 +69,6 @@ void ofApp::setup(){
     gui.add(bThreshWithOpenCV.set("use opencv", false));
     gui.add(bFlip.set("flip", false));
     gui.add(angle.set("angle",1,0,180));
-    gui.add(arcMin.set("arc min",10,1,480));
-    gui.add(arcMax.set("arc max",50,1,480));
 
     
     if (!ofFile("settings.xml"))
@@ -84,15 +76,7 @@ void ofApp::setup(){
     
     gui.loadFromFile("settings.xml");
     
-    
-    // init tracking data size;
-    trackingDataSize = 12;
-    
-    for(int i = 0;i<trackingDataSize;i++){
-        trackingData.push_back(0.0);
-        
-    }
-    
+
 }
 
 //--------------------------------------------------------------
@@ -131,14 +115,7 @@ void ofApp::exit() {
 //--------------------------------------------------------------
 void ofApp::update(){
 
-    // clear tracking data with 0.0
-    trackingData.clear();
-    for(int i = 0;i<trackingDataSize;i++){
-        trackingData.push_back(0.0f);
-        
-    }
-    
-    
+
     kinect.setCameraTiltAngle(angle);
     
     
@@ -187,27 +164,7 @@ void ofApp::update(){
         grayImage1 = grayImage;
         
         
-        
-        // get roi frm gray image
-        
-        {
-            ofPixels & pix = grayImage1.getPixels();
-            int numPixels = pix.size();
-            for(int i = 0; i < numPixels; i++) {
-                
-                int h = floor(i/640);
-                int w = i % 640;
-                
-                float arc = sqrt((w-320)*(w-320) + (h-480)*(h-480));
-                if(arc > arcMax || arc < arcMin ){
-                    
-                    pix[i] = 0;
-                    
-                }
-                
-            }
-        }
-        
+    
         
         // get image to track contour
         grayImage1.flagImageChanged();
@@ -259,57 +216,12 @@ void ofApp::update(){
             float y = rect.y + rect.height * 0.5;
             
             float trackingAngle = myPosToAngle(x, y);
-            
-            int angleIndex = int(floor(trackingAngle*trackingDataSize));
-            
-            trackingData[angleIndex] = 1.0f;
+        
 
 
     }
     
     
-    
-
-    
-    if(bSendingOSC){
-        // prepare data for osc send ----------------------------------------
-        
-        ofxOscMessage m;
-        ofxOscMessage m1;
-//        m.setAddress("/composition/selectedclip/video/effects/pwl00/effect/float1");
-//        m.addFloatArg(ofMap(ofGetMouseX(), 0, ofGetWidth(), 0.f, 1.f, true));
-//        //    m.addFloatArg(ofMap(ofGetMouseY(), 0, ofGetHeight(), 0.f, 1.f, true));
-//        sender.sendMessage(m, false);
-//        m.clear();
-        
-        string data;
-        for(int i = 0;i < trackingData.size();i++){
-            data += ofToString(trackingData[i]);
-            if(i != trackingData.size() - 1){
-                data += ",";
-                
-            }
-        }
-
-        cout << data <<  endl;
-        // debug ================
-//        m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/osctextdata0");
-        m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/osctextdata0");
-        m.addStringArg(data);
-        sender.sendMessage(m,false);
-        
-        
-        m1.setAddress("/composition/selectedclip/video/effects/pwaveline/effect/oscdataline0");
-        m1.addStringArg(data);
-        sender.sendMessage(m1,false);
-        
-        m1.clear();
-        
-        
-        
-        
-//
-    }
 }
 
 //--------------------------------------------------------------

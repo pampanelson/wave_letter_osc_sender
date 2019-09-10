@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxOsc.h"
 #include "ofxOpenCv.h"
 #include "ofxCv.h"
 #include "ofxGui.h"
@@ -9,12 +8,7 @@
 using namespace ofxCv;
 using namespace cv;
 
-// send host (aka ip address)
-//#define HOST "localhost"
-#define HOST "192.168.0.174"
 
-/// send port
-#define PORT 8000
 
 class ofApp : public ofBaseApp{
 
@@ -36,7 +30,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
     float myPosToAngle(float x,float y);
-    ofxOscSender sender;
+
 
     ofxCv::ContourFinder contourFinder;
     ofxCv::ContourFinder contourFinderTgtColor;
@@ -75,9 +69,6 @@ class ofApp : public ofBaseApp{
     
     ofParameter<int> angle;
     
-    ofParameter<int> arcMin;
-    ofParameter<int> arcMax;
 
-    vector<float> trackingData;
-    int trackingDataSize;
+
 };
