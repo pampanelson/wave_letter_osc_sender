@@ -6,6 +6,8 @@
 #include "ofxCv.h"
 #include "ofxGui.h"
 #include "ofxKinect.h"
+#include "ofxOpenNI.h"
+
 using namespace ofxCv;
 using namespace cv;
 
@@ -43,6 +45,8 @@ class ofApp : public ofBaseApp{
 
     ofColor targetColor;
 
+    
+    ofxOpenNIContext openNIDevice;
     
 
     

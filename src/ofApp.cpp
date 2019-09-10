@@ -12,7 +12,14 @@ void ofApp::setup(){
     // open an outgoing connection to HOST:PORT
     sender.setup(HOST, PORT);
 
+    openNIDevice.setup();
+    
+    openNIDevice.setMirror(true);
+    
 
+    
+    
+    
     
     // enable depth->video image calibration
     kinect.setRegistration(true);
@@ -149,6 +156,7 @@ void ofApp::setup(){
     }
     
 }
+
 
 //--------------------------------------------------------------
 
