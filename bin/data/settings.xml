@@ -34,7 +34,7 @@
 	<track_3_b_h>325.444</track_3_b_h>
 	<sending_osc>0</sending_osc>
 	<Sending_osc>1</Sending_osc>
-	<near>136</near>
+	<near>217</near>
 	<far>70</far>
 	<use_opencv>1</use_opencv>
 	<angle>18</angle>
@@ -69,4 +69,11 @@
 	<t7_y>296.857</t7_y>
 	<t7_w>101.742</t7_w>
 	<t7_h>59.7523</t7_h>
+	<t1_diff>1</t1_diff>
+	<t2_diff>1</t2_diff>
+	<t3_diff>1</t3_diff>
+	<t4_diff>1</t4_diff>
+	<t5_diff>1</t5_diff>
+	<t6_diff>1</t6_diff>
+	<t7_diff>1</t7_diff>
 </group>

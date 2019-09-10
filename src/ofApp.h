@@ -74,33 +74,43 @@ class ofApp : public ofBaseApp{
     
 
     
-    
+    ofParameter<bool> bTrack1Diff;
     ofParameter<float> track1PosX;
     ofParameter<float> track1PosY;
     ofParameter<float> track1W;
     ofParameter<float> track1H;
+    
+    ofParameter<bool> bTrack2Diff;
     ofParameter<float> track2PosX;
     ofParameter<float> track2PosY;
     ofParameter<float> track2W;
     ofParameter<float> track2H;
+    
+    ofParameter<bool> bTrack3Diff;
     ofParameter<float> track3PosX;
     ofParameter<float> track3PosY;
     ofParameter<float> track3W;
     ofParameter<float> track3H;
     
+    ofParameter<bool> bTrack4Diff;
     ofParameter<float> track4PosX;
     ofParameter<float> track4PosY;
     ofParameter<float> track4W;
     ofParameter<float> track4H;
+    
+    ofParameter<bool> bTrack5Diff;
     ofParameter<float> track5PosX;
     ofParameter<float> track5PosY;
     ofParameter<float> track5W;
     ofParameter<float> track5H;
+    
+    ofParameter<bool> bTrack6Diff;
     ofParameter<float> track6PosX;
     ofParameter<float> track6PosY;
     ofParameter<float> track6W;
     ofParameter<float> track6H;
     
+    ofParameter<bool> bTrack7Diff;
     ofParameter<float> track7PosX;
     ofParameter<float> track7PosY;
     ofParameter<float> track7W;

@@ -66,43 +66,54 @@ void ofApp::setup(){
     gui.add(bSendingOSC.set("Sending osc",false));
     gui.add(bTracking.set("Tracking",false));
 
-
+    gui.add(bTrack1Diff.set("t1 diff",false));
     gui.add(track1PosX.set("t1 x",0,0,640));
     gui.add(track1PosY.set("t1 y",0,0,480));
 
     gui.add(track1W.set("t1 w",1,1,640));
     gui.add(track1H.set("t1 h",1,1,480));
     
+    
+    gui.add(bTrack2Diff.set("t2 diff",false));
     gui.add(track2PosX.set("t2 x",1,1,640));
     gui.add(track2PosY.set("t2 y",1,1,480));
     
     gui.add(track2W.set("t2 w",1,1,640));
     gui.add(track2H.set("t2 h",1,1,480));
     
+    gui.add(bTrack3Diff.set("t3 diff",false));
     gui.add(track3PosX.set("t3 x",1,1,640));
     gui.add(track3PosY.set("t3 y",1,1,480));
     
     gui.add(track3W.set("t3 w",1,1,640));
     gui.add(track3H.set("t3 h",1,1,480));
     
+    
+    gui.add(bTrack4Diff.set("t4 diff",false));
     gui.add(track4PosX.set("t4 x",1,1,640));
     gui.add(track4PosY.set("t4 y",1,1,480));
     
     gui.add(track4W.set("t4 w",1,1,640));
     gui.add(track4H.set("t4 h",1,1,480));
     
+    
+    gui.add(bTrack5Diff.set("t5 diff",false));
     gui.add(track5PosX.set("t5 x",1,1,640));
     gui.add(track5PosY.set("t5 y",1,1,480));
     
     gui.add(track5W.set("t5 w",1,1,640));
     gui.add(track5H.set("t5 h",1,1,480));
     
+    
+    gui.add(bTrack6Diff.set("t6 diff",false));
     gui.add(track6PosX.set("t6 x",1,1,640));
     gui.add(track6PosY.set("t6 y",1,1,480));
     
     gui.add(track6W.set("t6 w",1,1,640));
     gui.add(track6H.set("t6 h",1,1,480));
     
+    
+    gui.add(bTrack7Diff.set("t7 diff",false));
     gui.add(track7PosX.set("t7 x",1,1,640));
     gui.add(track7PosY.set("t7 y",1,1,480));
     
@@ -230,17 +241,18 @@ void ofApp::update(){
         
         
         // get diff
-//        absdiff(grayImage, previous, diff);
+        absdiff(grayImage, previous, diff);
         
         
-//        diff.update();
         
-//        copy(grayImage, previous);
+        diff.update();
+        
+        copy(grayImage, previous);
 
-//        cv::Mat diff1 = toCv(diff);
+        cv::Mat diff1 = toCv(diff);
 
         // try use color in area but change;
-        cv::Mat diff1 = toCv(grayImage);
+        cv::Mat gray1 = toCv(grayImage);
         
         // get roi frm gray image
         
@@ -259,9 +271,19 @@ void ofApp::update(){
 //                    only col[0] has value 0 or 255
                     float mark = col[0]/255.0;
                     
+                    Scalar col1 = gray1.at<uchar>(j,i);
+                    float mark1 = col1[0]/255.0;
+                    
                     // handle tracking data ==================================  IMPORTANT ++++++++++++
                     if(i < track1PosX + track1W && i > track1PosX && j < track1PosY + track1H && j > track1PosY ){
-                        trackingData[0] += mark/(track1W*track1H);
+                        
+                        if(bTrack1Diff){
+                            trackingData[0] += mark/(track1W*track1H);
+
+                        }else{
+                            trackingData[0] += mark1/(track1W*track1H);
+
+                        }
                         
                     }
                     
@@ -269,7 +291,13 @@ void ofApp::update(){
                     
                     
                     if(i < track2PosX + track2W && i > track2PosX && j < track2PosY + track2H && j > track2PosY ){
-                        trackingData[1] += mark/(track2W*track2H);
+                        if(bTrack2Diff){
+                            trackingData[1] += mark/(track2W*track2H);
+
+                        }else{
+                            trackingData[1] += mark1/(track2W*track2H);
+
+                        }
                         
                     }
                     
@@ -278,8 +306,13 @@ void ofApp::update(){
                     
                     
                     if(i < track3PosX + track3W && i > track3PosX && j < track3PosY + track3H && j > track3PosY ){
-                        trackingData[2] += mark/(track3W*track3H);
-                        
+                        if(bTrack3Diff){
+                            trackingData[2] += mark/(track3W*track3H);
+
+                        }else{
+                            trackingData[2] += mark1/(track3W*track3H);
+
+                        }
                     }
                     
                     
@@ -287,8 +320,13 @@ void ofApp::update(){
                     
                     
                     if(i < track4PosX + track4W && i > track4PosX && j < track4PosY + track4H && j > track4PosY ){
-                        trackingData[3] += mark/(track4W*track4H);
-                        
+                        if(bTrack4Diff){
+                            trackingData[3] += mark/(track4W*track4H);
+
+                        }else{
+                            trackingData[3] += mark1/(track4W*track4H);
+
+                        }
                     }
                     
                     
@@ -297,8 +335,13 @@ void ofApp::update(){
                     
                     
                     if(i < track5PosX + track5W && i > track5PosX && j < track5PosY + track5H && j > track5PosY ){
-                        trackingData[4] += mark/(track5W*track5H);
-                        
+                        if(bTrack5Diff){
+                            trackingData[4] += mark/(track5W*track5H);
+
+                        }else{
+                            trackingData[4] += mark1/(track5W*track5H);
+
+                        }
                     }
                     
                     
@@ -307,8 +350,13 @@ void ofApp::update(){
                     
                     
                     if(i < track6PosX + track6W && i > track6PosX && j < track6PosY + track6H && j > track6PosY ){
-                        trackingData[5] += mark/(track6W*track6H);
-                        
+                        if(bTrack6Diff){
+                            trackingData[5] += mark/(track6W*track6H);
+
+                        }else{
+                            trackingData[5] += mark1/(track6W*track6H);
+
+                        }
                     }
                     
                     
@@ -316,7 +364,13 @@ void ofApp::update(){
                     
                     
                     if(i < track7PosX + track7W && i > track7PosX && j < track7PosY + track7H && j > track7PosY ){
-                        trackingData[6] += mark/(track7W*track7H);
+                        if(bTrack7Diff){
+                            trackingData[6] += mark/(track7W*track7H);
+
+                        }else{
+                            trackingData[6] += mark1/(track7W*track7H);
+
+                        }
                         
                     }
                     
@@ -398,8 +452,8 @@ void ofApp::draw(){
     
     
 //    kinect.getDepthTexture().draw(0, 0);
-    grayImage.draw(0,0);
-    
+    grayImage.draw(640,0);
+    diff.draw(0, 0);
 
 
 //    // draw tracking area
@@ -407,28 +461,28 @@ void ofApp::draw(){
     ofDrawRectangle(track1PosX, track1PosY, track1W, track1H);
 
     ofSetColor(0,255,255);
-    ofDrawBitmapString(ofToString(trackingData[0]), track1PosX, track1PosY);
+    ofDrawBitmapString(ofToString(bTrack1Diff) + "-" + ofToString(trackingData[0]), track1PosX, track1PosY);
 
     
     ofSetColor(0, 255, 0,128 + trackingData[1] * 128);
     ofDrawRectangle(track2PosX, track2PosY, track2W, track2H);
 
     ofSetColor(255,0,255);
-    ofDrawBitmapString(ofToString(trackingData[1]), track2PosX, track2PosY);
+    ofDrawBitmapString(ofToString(bTrack2Diff) +  "-" + ofToString(trackingData[1]), track2PosX, track2PosY);
 
     
     ofSetColor(0, 0, 255,128 + trackingData[2] * 128);
     ofDrawRectangle(track3PosX, track3PosY, track3W, track3H);
 
     ofSetColor(255,255,0);
-    ofDrawBitmapString(ofToString(trackingData[2]), track3PosX, track3PosY);
+    ofDrawBitmapString(ofToString(bTrack3Diff) + "-" + ofToString(trackingData[2]), track3PosX, track3PosY);
 
 
     ofSetColor(255, 255, 255,128 + trackingData[3] * 128);
     ofDrawRectangle(track4PosX, track4PosY, track4W, track4H);
     
     ofSetColor(255,255,0);
-    ofDrawBitmapString(ofToString(trackingData[3]), track4PosX, track4PosY);
+    ofDrawBitmapString(ofToString(bTrack4Diff) + "-" + ofToString(trackingData[3]), track4PosX, track4PosY);
 
     
 
@@ -436,7 +490,7 @@ void ofApp::draw(){
     ofDrawRectangle(track5PosX, track5PosY, track5W, track5H);
 
     ofSetColor(0,255,255);
-    ofDrawBitmapString(ofToString(trackingData[4]), track5PosX, track5PosY);
+    ofDrawBitmapString(ofToString(bTrack5Diff) + "-" + ofToString(trackingData[4]), track5PosX, track5PosY);
 
     
 
@@ -444,18 +498,19 @@ void ofApp::draw(){
     ofDrawRectangle(track6PosX, track6PosY, track6W, track6H);
 
     ofSetColor(255,0,255);
-    ofDrawBitmapString(ofToString(trackingData[5]), track6PosX, track6PosY);
+    ofDrawBitmapString(ofToString(bTrack6Diff) + "-" + ofToString(trackingData[5]), track6PosX, track6PosY);
 
     
     ofSetColor(0, 0, 255,128 + trackingData[6] * 128);
     ofDrawRectangle(track7PosX, track7PosY, track7W, track7H);
 
     ofSetColor(255,255,0);
-    ofDrawBitmapString(ofToString(trackingData[6]), track7PosX, track7PosY);
+    ofDrawBitmapString(ofToString(bTrack7Diff) + "-" + ofToString(trackingData[6]), track7PosX, track7PosY);
 
     
     ofSetColor(255);
     
+
     gui.draw();
 
 }
