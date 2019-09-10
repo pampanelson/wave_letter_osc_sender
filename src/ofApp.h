@@ -113,5 +113,5 @@ class ofApp : public ofBaseApp{
     
     
     vector<float> trackingData;
-    int trackingDataSize = 7;
+    int trackingDataSize;
 };

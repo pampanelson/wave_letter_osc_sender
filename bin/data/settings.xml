@@ -7,7 +7,7 @@
 	<use_target_color>1</use_target_color>
 	<target_color_Threshold>61.2</target_color_Threshold>
 	<Track_Hue_Saturation>0</Track_Hue_Saturation>
-	<Tracking>0</Tracking>
+	<Tracking>1</Tracking>
 	<track_1_x>211.2</track_1_x>
 	<track_1_y>189.6</track_1_y>
 	<track_1_w>230.4</track_1_w>
@@ -33,12 +33,40 @@
 	<track_3_b_w>81.925</track_3_b_w>
 	<track_3_b_h>325.444</track_3_b_h>
 	<sending_osc>0</sending_osc>
-	<Sending_osc>0</Sending_osc>
-	<near>230</near>
+	<Sending_osc>1</Sending_osc>
+	<near>136</near>
 	<far>70</far>
-	<use_opencv>0</use_opencv>
+	<use_opencv>1</use_opencv>
 	<angle>18</angle>
 	<arc_min>230</arc_min>
 	<arc_max>295</arc_max>
-	<flip>0</flip>
+	<flip>1</flip>
+	<t1_x>159.363</t1_x>
+	<t1_y>292.322</t1_y>
+	<t1_w>89.8235</t1_w>
+	<t1_h>62.7929</t1_h>
+	<t2_x>156.919</t2_x>
+	<t2_y>230.443</t2_y>
+	<t2_w>93.0185</t2_w>
+	<t2_h>60.3979</t2_h>
+	<t3_x>156.919</t3_x>
+	<t3_y>165.778</t3_y>
+	<t3_w>73.8485</t3_w>
+	<t3_h>62.7929</t3_h>
+	<t4_x>230.403</t4_x>
+	<t4_y>170.568</t4_y>
+	<t4_w>112.188</t4_w>
+	<t4_h>62.7929</t4_h>
+	<t5_x>341.367</t5_x>
+	<t5_y>167.527</t5_y>
+	<t5_w>108.132</t5_w>
+	<t5_h>64.5423</t5_h>
+	<t6_x>341.367</t6_x>
+	<t6_y>229.797</t6_y>
+	<t6_w>104.937</t6_w>
+	<t6_h>66.9373</t6_h>
+	<t7_x>341.367</t7_x>
+	<t7_y>296.857</t7_y>
+	<t7_w>101.742</t7_w>
+	<t7_h>59.7523</t7_h>
 </group>
