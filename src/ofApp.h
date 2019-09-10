@@ -10,8 +10,8 @@ using namespace ofxCv;
 using namespace cv;
 
 // send host (aka ip address)
-//#define HOST "localhost"
-#define HOST "192.168.0.174"
+#define HOST "localhost"
+//#define HOST "192.168.0.174"
 
 /// send port
 #define PORT 8000
