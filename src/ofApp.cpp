@@ -25,12 +25,15 @@ void ofApp::setup(){
     //kinect.open(1);    // open a kinect by id, starting with 0 (sorted by serial # lexicographically))
     //kinect.open("A00362A08602047A");    // open a kinect using it's unique serial #
     
-    cout << kinect.width << "," << kinect.height << endl;
-    colorImg.allocate(kinect.width, kinect.height);
+//    cout << kinect.width << "," << kinect.height << endl;
     grayImage.allocate(kinect.width, kinect.height);
-    grayImage1.allocate(kinect.width, kinect.height);
     grayThreshNear.allocate(kinect.width, kinect.height);
     grayThreshFar.allocate(kinect.width, kinect.height);
+    
+    
+    imitate(previous, grayImage);
+    imitate(diff, grayImage);
+    
     
     nearThreshold = 230;
     farThreshold = 70;
@@ -62,21 +65,59 @@ void ofApp::setup(){
     gui.setup();
     gui.add(bSendingOSC.set("Sending osc",false));
     gui.add(bTracking.set("Tracking",false));
-    gui.add(minArea.set("Min area", 10, 1, 100));
-    gui.add(maxArea.set("Max area", 200, 1, 500));
-    gui.add(threshold.set("Threshold", 128, 0, 255));
-    gui.add(holes.set("Holes", false));
-    gui.add(bUseTgtColor.set("use target color",false));
-    gui.add(tgtColorThreshold.set("target color Threshold", 128, 0, 255));
-//    gui.add(trackHs.set("Track Hue/Saturation", false));
+
+
+    gui.add(track1PosX.set("t1 x",0,0,640));
+    gui.add(track1PosY.set("t1 y",0,0,480));
+
+    gui.add(track1W.set("t1 w",0,0,640));
+    gui.add(track1H.set("t1 h",0,0,480));
+    
+    gui.add(track2PosX.set("t2 x",0,0,640));
+    gui.add(track2PosY.set("t2 y",0,0,480));
+    
+    gui.add(track2W.set("t2 w",0,0,640));
+    gui.add(track2H.set("t2 h",0,0,480));
+    
+    gui.add(track3PosX.set("t3 x",0,0,640));
+    gui.add(track3PosY.set("t3 y",0,0,480));
+    
+    gui.add(track3W.set("t3 w",0,0,640));
+    gui.add(track3H.set("t3 h",0,0,480));
+    
+    gui.add(track4PosX.set("t4 x",0,0,640));
+    gui.add(track4PosY.set("t4 y",0,0,480));
+    
+    gui.add(track4W.set("t4 w",0,0,640));
+    gui.add(track4H.set("t4 h",0,0,480));
+    
+    gui.add(track5PosX.set("t5 x",0,0,640));
+    gui.add(track5PosY.set("t5 y",0,0,480));
+    
+    gui.add(track5W.set("t5 w",0,0,640));
+    gui.add(track5H.set("t5 h",0,0,480));
+    
+    gui.add(track6PosX.set("t6 x",0,0,640));
+    gui.add(track6PosY.set("t6 y",0,0,480));
+    
+    gui.add(track6W.set("t6 w",0,0,640));
+    gui.add(track6H.set("t6 h",0,0,480));
+    
+    gui.add(track7PosX.set("t7 x",0,0,640));
+    gui.add(track7PosY.set("t7 y",0,0,480));
+    
+    gui.add(track7W.set("t7 w",0,0,640));
+    gui.add(track7H.set("t7 h",0,0,480));
+    
+    
+
     
     gui.add(nearThreshold.set("near",230,1,255));
     gui.add(farThreshold.set("far",70,1,255));
     gui.add(bThreshWithOpenCV.set("use opencv", false));
     gui.add(bFlip.set("flip", false));
     gui.add(angle.set("angle",1,0,180));
-    gui.add(arcMin.set("arc min",10,1,480));
-    gui.add(arcMax.set("arc max",50,1,480));
+
 
     
     if (!ofFile("settings.xml"))
@@ -184,66 +225,47 @@ void ofApp::update(){
         
         // update the cv images
         grayImage.flagImageChanged();
-        grayImage1 = grayImage;
+
+        
+        
+        
+        // get diff
+        absdiff(grayImage, previous, diff);
+        
+        
+        diff.update();
+        
+        copy(grayImage, previous);
+
+        cv::	Mat diff1 = toCv(diff);
+
         
         
         
         // get roi frm gray image
         
-        {
-            ofPixels & pix = grayImage1.getPixels();
-            int numPixels = pix.size();
-            for(int i = 0; i < numPixels; i++) {
-                
-                int h = floor(i/640);
-                int w = i % 640;
-                
-                float arc = sqrt((w-320)*(w-320) + (h-480)*(h-480));
-                if(arc > arcMax || arc < arcMin ){
-                    
-                    pix[i] = 0;
-                    
-                }
-                
-            }
-        }
+
         
-        
-        // get image to track contour
-        grayImage1.flagImageChanged();
-        
-        grayImage1.blur();
-        
+    
         
         
         // tracking
         
         if(bTracking){
-            contourFinder.setMinAreaRadius(minArea);
-            contourFinder.setMaxAreaRadius(maxArea);
-            contourFinder.setThreshold(threshold);
-            contourFinder.setFindHoles(holes);
-            
-            
-            contourFinder.findContours(grayImage1);
-            
-            
+            for (int i = 0; i < diff1.rows; i++) {
+                for (int j = 0; j < diff1.cols; j++) {
+                    Scalar col = diff1.at<uchar>(i,j);
+//                    cout << col[0] << "," << col[1] << "," << col[2] << "," << col[3] << endl;
+//                    only col[0] has value 0 or 255
+                    float mark = col[0];
+                    
+                    // handle tracking data ==================================  IMPORTANT ++++++++++++
+                    
+                }
+            }
         }
 
         
-        if(bUseTgtColor){
-            //            contourFinderTgtColor.setTargetColor(targetColor, trackHs ? TRACK_COLOR_HS : TRACK_COLOR_RGB);
-            contourFinderTgtColor.setTargetColor(targetColor);
-            
-            contourFinderTgtColor.setMinAreaRadius(minArea);
-            contourFinderTgtColor.setMaxAreaRadius(maxArea);
-            contourFinderTgtColor.setFindHoles(holes);
-            contourFinderTgtColor.setThreshold(tgtColorThreshold.get());
-            contourFinderTgtColor.findContours(grayImage1);
-            
-        }
-
-
     }
     
     
@@ -251,25 +273,16 @@ void ofApp::update(){
     // ----------------------------------------  preapare tracking data
 
     
-    for (int i = 0; i<contourFinderTgtColor.size(); i++) {
-        
-    
-            cv::Rect rect = contourFinderTgtColor.getBoundingRect(i);
-            float x = rect.x+rect.width * 0.5;
-            float y = rect.y + rect.height * 0.5;
-            
-            float trackingAngle = myPosToAngle(x, y);
-            
-            int angleIndex = int(floor(trackingAngle*trackingDataSize));
-            
-            trackingData[angleIndex] = 1.0f;
-
-
-    }
     
     
     
-
+    
+    
+    
+    
+    
+    
+    
     
     if(bSendingOSC){
         // prepare data for osc send ----------------------------------------
@@ -322,19 +335,8 @@ void ofApp::draw(){
     
 //    kinect.getDepthTexture().draw(0, 0);
     grayImage.draw(0,0);
-    grayImage1.draw(640,0);
-    
-    
-    ofSetColor(255,0,0);
-    contourFinder.draw();
-    if(bUseTgtColor){
-        ofTranslate(640, 480);
-        contourFinderTgtColor.draw();
-        ofTranslate(-640, -480);
-        
-    }
-    
-    ofSetColor(255,255,255);
+    diff.draw(640,0);
+
 
     gui.draw();
 

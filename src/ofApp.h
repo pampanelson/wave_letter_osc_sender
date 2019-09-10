@@ -49,22 +49,19 @@ class ofApp : public ofBaseApp{
     ofxPanel gui;
     ofParameter<bool> bSendingOSC;
     ofParameter<bool> bTracking;
-    ofParameter<float> minArea, maxArea, threshold;
-    ofParameter<bool> holes;
-    ofParameter<bool> bUseTgtColor;
-    ofParameter<bool> trackHs;
-    ofParameter<float> tgtColorThreshold;
 
     
     ofxKinect kinect;
     ofxCvColorImage colorImg;
     
     ofxCvGrayscaleImage grayImage; // grayscale depth image
-    ofxCvGrayscaleImage grayImage1; // grayscale depth image
+
     ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
     ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
     
-
+    ofPixels previous;
+    ofImage diff;
+    cv::Scalar diffMean;
     
     ofParameter<bool> bThreshWithOpenCV;
     ofParameter<bool> bFlip;
@@ -75,9 +72,46 @@ class ofApp : public ofBaseApp{
     
     ofParameter<int> angle;
     
-    ofParameter<int> arcMin;
-    ofParameter<int> arcMax;
 
+    
+    
+    ofParameter<float> track1PosX;
+    ofParameter<float> track1PosY;
+    ofParameter<float> track1W;
+    ofParameter<float> track1H;
+    ofParameter<float> track2PosX;
+    ofParameter<float> track2PosY;
+    ofParameter<float> track2W;
+    ofParameter<float> track2H;
+    ofParameter<float> track3PosX;
+    ofParameter<float> track3PosY;
+    ofParameter<float> track3W;
+    ofParameter<float> track3H;
+    
+    ofParameter<float> track4PosX;
+    ofParameter<float> track4PosY;
+    ofParameter<float> track4W;
+    ofParameter<float> track4H;
+    ofParameter<float> track5PosX;
+    ofParameter<float> track5PosY;
+    ofParameter<float> track5W;
+    ofParameter<float> track5H;
+    ofParameter<float> track6PosX;
+    ofParameter<float> track6PosY;
+    ofParameter<float> track6W;
+    ofParameter<float> track6H;
+    
+    ofParameter<float> track7PosX;
+    ofParameter<float> track7PosY;
+    ofParameter<float> track7W;
+    ofParameter<float> track7H;
+    
+    
+    
+    
+    
+    
+    
     vector<float> trackingData;
-    int trackingDataSize;
+    int trackingDataSize = 7;
 };
