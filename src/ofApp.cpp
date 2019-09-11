@@ -57,81 +57,32 @@ void ofApp::setup(){
         ofLogNotice() << "zero plane dist: " << kinect.getZeroPlaneDistance() << "mm";
     }
     
-    
-    
+
     
     // zero the tilt on startup
 
     gui.setup();
     gui.add(bSendingOSC.set("Sending osc",false));
     gui.add(bTracking.set("Tracking",false));
-//    gui.add(ellipseRadius.set("ellipse raidus",0.1,0,1));
-//    gui.add(ellipseWideX.set("ellipse wide x",0.05,0,1));
-//    gui.add(ellipseWideY.set("ellipse wide y",0.05,0,2));
-
-    gui.add(bTrack1Diff.set("t1 diff",false));
-    gui.add(track1PosX.set("t1 x",0,0,640));
-    gui.add(track1PosY.set("t1 y",0,0,480));
-
-    gui.add(track1W.set("t1 w",1,1,640));
-    gui.add(track1H.set("t1 h",1,1,480));
-    
-    
-    gui.add(bTrack2Diff.set("t2 diff",false));
-    gui.add(track2PosX.set("t2 x",1,1,640));
-    gui.add(track2PosY.set("t2 y",1,1,480));
-    
-    gui.add(track2W.set("t2 w",1,1,640));
-    gui.add(track2H.set("t2 h",1,1,480));
-    
-    gui.add(bTrack3Diff.set("t3 diff",false));
-    gui.add(track3PosX.set("t3 x",1,1,640));
-    gui.add(track3PosY.set("t3 y",1,1,480));
-    
-    gui.add(track3W.set("t3 w",1,1,640));
-    gui.add(track3H.set("t3 h",1,1,480));
-    
-    
-    gui.add(bTrack4Diff.set("t4 diff",false));
-    gui.add(track4PosX.set("t4 x",1,1,640));
-    gui.add(track4PosY.set("t4 y",1,1,480));
-    
-    gui.add(track4W.set("t4 w",1,1,640));
-    gui.add(track4H.set("t4 h",1,1,480));
-    
-    
-    gui.add(bTrack5Diff.set("t5 diff",false));
-    gui.add(track5PosX.set("t5 x",1,1,640));
-    gui.add(track5PosY.set("t5 y",1,1,480));
-    
-    gui.add(track5W.set("t5 w",1,1,640));
-    gui.add(track5H.set("t5 h",1,1,480));
-    
-    
-    gui.add(bTrack6Diff.set("t6 diff",false));
-    gui.add(track6PosX.set("t6 x",1,1,640));
-    gui.add(track6PosY.set("t6 y",1,1,480));
-    
-    gui.add(track6W.set("t6 w",1,1,640));
-    gui.add(track6H.set("t6 h",1,1,480));
-    
-    
-    gui.add(bTrack7Diff.set("t7 diff",false));
-    gui.add(track7PosX.set("t7 x",1,1,640));
-    gui.add(track7PosY.set("t7 y",1,1,480));
-    
-    gui.add(track7W.set("t7 w",1,1,640));
-    gui.add(track7H.set("t7 h",1,1,480));
-    
-    
-
-    
     gui.add(nearThreshold.set("near",230,1,255));
     gui.add(farThreshold.set("far",70,1,255));
     gui.add(bThreshWithOpenCV.set("use opencv", false));
     gui.add(bFlip.set("flip", false));
     gui.add(angle.set("angle",1,0,180));
-
+    
+    gui.add(bShowLabels.set("show label", false));
+    gui.add(minAreaRadius.set("min area",1,1,300));
+    gui.add(maxAreaRadius.set("max area",10,1,800));
+    gui.add(trackingThreshold.set("tracking thresh",1,1,100));
+    gui.add(maxDistance.set("max dis",10,1,500));
+    gui.add(trackingPersistence.set("persistence",15,1,60)); // frames
+    
+   
+    gui.add(topSignThresh.set("top sign",0,0,60)); // frames
+    gui.add(leftSignThresh.set("left sign",0,0,60)); // frames
+    gui.add(rightSignThresh.set("right sign",0,0,60)); // frames
+    gui.add(leftCountLimit.set("left limit",0,0,20)); // frames
+    gui.add(rightCountLimit.set("right limit",0,0,20)); // frames
 
     
     if (!ofFile("settings.xml"))
@@ -141,12 +92,17 @@ void ofApp::setup(){
     
     
     // init tracking data size;
-    trackingDataSize = 7;
+    trackingDataSize = 30;// 30 frames for a sencod
     
     for(int i = 0;i<trackingDataSize;i++){
-        trackingData.push_back(0.0);
+        
+        ofPoint p = ofPoint(0.0,0.0,0.0);
+        trackingData.push_back(p);
         
     }
+    
+    waveFromLeftToRight = false;
+    waveFromRightToLeft = false;
     
 }
 
@@ -186,17 +142,8 @@ void ofApp::exit() {
 //--------------------------------------------------------------
 void ofApp::update(){
 
-    // clear tracking data with 0.0
-    trackingData.clear();
-    trackingPointDataX.clear();
-    trackingPointDataY.clear();
-
-    for(int i = 0;i<trackingDataSize;i++){
-        trackingData.push_back(0.0f);
-        trackingPointDataX.push_back(0);
-        trackingPointDataY.push_back(0);
-
-    }
+    waveFromLeftToRight = false;
+    waveFromRightToLeft = false;
     
     
     kinect.setCameraTiltAngle(angle);
@@ -244,340 +191,130 @@ void ofApp::update(){
         
         // update the cv images
         grayImage.flagImageChanged();
-
-        
-        
-        
         // get diff
-        absdiff(grayImage, previous, diff);
+//        absdiff(grayImage, previous, diff);
+//        diff.update();
+//        copy(grayImage, previous);
+//        blur(diff,10);
+        
+        grayImage.blur();
+        
+        contourFinder.setMinAreaRadius(minAreaRadius);
+        contourFinder.setMaxAreaRadius(maxAreaRadius);
+        contourFinder.setThreshold(trackingThreshold);
+        // wait for half a second before forgetting something
+//        contourFinder.getTracker().setPersistence(trackingPersistence);
+        // an object can move up to 32 pixels per frame
+//        contourFinder.getTracker().setMaximumDistance(maxDistance);
         
         
-        
-        diff.update();
-        
-        copy(grayImage, previous);
 
-        cv::Mat diff1 = toCv(diff);
-
-        // try use color in area but change;
-        cv::Mat gray1 = toCv(grayImage);
-        
-        // get roi frm gray image
-        
-        
-//        for (int i = 0; i < gray1.cols; i++) {
-//            for (int j = 0; j < gray1.rows; j++) {
-//                Scalar col = gray1.at<uchar>(j,i);
-//
-//                float x = j;
-//                float y = i;
-//
-//
-//
-//                float length = sqrt((x-480)*ellipseWideX*ellipseWideX*(x-480) + (y-320)*ellipseWideY*ellipseWideY*(y-320));
-//
-//                if(length < ellipseRadius * 240){
-//                    gray1.at<uchar>(j, i, 0) = 255;
-//                }
-//            }
-//        }
-//
     
-//        grayImage.flagImageChanged();
-
         
         // tracking
-        
-        if(bTracking){
+        // judege if need to sending signal for make waves
+        float topSign;
+        float leftSign;
+        float rightSign;
+        contourFinder.findContours(grayImage);
+
+        if(bTracking && contourFinder.size() > 0){
+//            contourFinder.findContours(diff);
+
             
-            vector<int> tracking1VecX;
-            vector<int> tracking2VecX;
-            vector<int> tracking3VecX;
-            vector<int> tracking4VecX;
-            vector<int> tracking5VecX;
-            vector<int> tracking6VecX;
-            vector<int> tracking7VecX;
+            float biggest;
+            int biggestIndex;
+            for(int i = 0; i < contourFinder.size(); i++) {
+                
+                if(contourFinder.getBoundingRect(i).area() > biggest){
+                    biggest = contourFinder.getBoundingRect(i).area();
+                    biggestIndex = i;
+                }
+            }
             
-            vector<int> tracking1VecY;
-            vector<int> tracking2VecY;
-            vector<int> tracking3VecY;
-            vector<int> tracking4VecY;
-            vector<int> tracking5VecY;
-            vector<int> tracking6VecY;
-            vector<int> tracking7VecY;
+            float x = contourFinder.getBoundingRect(biggestIndex).x;
+            float y = contourFinder.getBoundingRect(biggestIndex).y;
             
-            for (int i = 0; i < diff1.cols; i++) {
-                for (int j = 0; j < diff1.rows; j++) {
-                    Scalar col = diff1.at<uchar>(j,i);
-                    //                    cout << col[0] << "," << col[1] << "," << col[2] << "," << col[3] << endl;
-                    //                    only col[0] has value 0 or 255
-                    float mark = col[0]/255.0;
-                    
-                    Scalar col1 = gray1.at<uchar>(j,i);
-                    float mark1 = col1[0]/255.0;
-                    
-                    // handle tracking data ==================================  IMPORTANT ++++++++++++
-                    if(i < track1PosX + track1W && i > track1PosX && j < track1PosY + track1H && j > track1PosY ){
-                        
-                        if(bTrack1Diff){
-                            trackingData[0] += mark/(track1W*track1H);
-                            
-                        }else{
-                            
-                            
-                            trackingData[0] += mark1/(track1W*track1H);
-                            if(mark1 > 0.0){
-                                
-                                tracking1VecX.push_back(i);
-                                tracking1VecY.push_back(j);
-                            }
-                            
-                        }
-                        
-                    }
-                    
-                    
-                    
-                    
-                    if(i < track2PosX + track2W && i > track2PosX && j < track2PosY + track2H && j > track2PosY ){
-                        if(bTrack2Diff){
-                            trackingData[1] += mark/(track2W*track2H);
-                            
-                        }else{
-                            
-                            
-                            trackingData[1] += mark1/(track2W*track2H);
-                            if(mark1 > 0.0){
-                                tracking2VecX.push_back(i);
-                                tracking2VecY.push_back(j);
-                            }
-                        }
-                        
-                    }
-                    
-                    
-                    
-                    
-                    
-                    if(i < track3PosX + track3W && i > track3PosX && j < track3PosY + track3H && j > track3PosY ){
-                        if(bTrack3Diff){
-                            trackingData[2] += mark/(track3W*track3H);
-                            
-                        }else{
-                            
-                            
-                            trackingData[2] += mark1/(track3W*track3H);
-                            if(mark1 > 0.0){
-                                tracking3VecX.push_back(i);
-                                tracking3VecY.push_back(j);
-                            }
-                        }
-                    }
-                    
-                    
-                    
-                    
-                    
-                    if(i < track4PosX + track4W && i > track4PosX && j < track4PosY + track4H && j > track4PosY ){
-                        if(bTrack4Diff){
-                            trackingData[3] += mark/(track4W*track4H);
-                            
-                        }else{
-                            
-                            
-                            trackingData[3] += mark1/(track4W*track4H);
-                            if(mark1 > 0.0){
-                                tracking4VecX.push_back(i);
-                                tracking4VecY.push_back(j);
-                            }
-                        }
-                    }
-                    
-                    
-                    
-                    
-                    
-                    
-                    if(i < track5PosX + track5W && i > track5PosX && j < track5PosY + track5H && j > track5PosY ){
-                        if(bTrack5Diff){
-                            trackingData[4] += mark/(track5W*track5H);
-                            
-                        }else{
-                            
-                            
-                            trackingData[4] += mark1/(track5W*track5H);
-                            if(mark1 > 0.0){
-                                tracking5VecX.push_back(i);
-                                tracking5VecY.push_back(j);
-                            }
-                        }
-                    }
-                    
-                    
-                    
-                    
-                    
-                    
-                    if(i < track6PosX + track6W && i > track6PosX && j < track6PosY + track6H && j > track6PosY ){
-                        if(bTrack6Diff){
-                            trackingData[5] += mark/(track6W*track6H);
-                            
-                        }else{
-                            
-                            
-                            trackingData[5] += mark1/(track6W*track6H);
-                            if(mark1 > 0.0){
-                                tracking6VecX.push_back(i);
-                                tracking6VecY.push_back(j);
-                            }
-                        }
-                    }
-                    
-                    
-                    
-                    
-                    
-                    if(i < track7PosX + track7W && i > track7PosX && j < track7PosY + track7H && j > track7PosY ){
-                        if(bTrack7Diff){
-                            trackingData[6] += mark/(track7W*track7H);
-                            
-                        }else{
-                            
-                            
-                            trackingData[6] += mark1/(track7W*track7H);
-                            if(mark1 > 0.0){
-                                tracking7VecX.push_back(i);
-                                tracking7VecY.push_back(j);
-                            }
-                        }
-                        
-                    }
-                    
-                    
-                    
+            float w = contourFinder.getBoundingRect(biggestIndex).width;
+            float h = contourFinder.getBoundingRect(biggestIndex).height;
+            
+            float left = x;
+            float right = x + w;
+
+            float deltaTop = y - preTop;
+            float deltaLeft = left - preLeft;
+            float deltaRight = right - preRigh;// delta is smaller is better , smaller than 0 means keeping move to left
+            
+            
+            preRigh = right;
+            preLeft = left;
+            preTop = y;
+            
+
+            for (int i = 0; i < trackingDataSize; i++) {
+                if(i == trackingDataSize - 1){
+                    // last element been replaced;
+                    trackingData[i] = ofPoint(deltaTop,deltaLeft,deltaRight);
+
+                }
+                else{
+                    trackingData[i] = trackingData[i+1];
                 }
                 
                 
-                
-            
-                
-                
-            }
-            
-            
-            // proress tracking point raw data
-            
-            for (int i = 0; i < tracking1VecX.size(); i++) {
-                trackingPointDataX[0] += tracking1VecX[i];
-                trackingPointDataY[0] += tracking1VecY[i];
-            }
-            if(tracking1VecX.size() > 0){
-                trackingPointDataX[0] = trackingPointDataX[0] / tracking1VecX.size();
-                trackingPointDataY[0] = trackingPointDataY[0] / tracking1VecX.size();
+                topSign += trackingData[i][0];
+                leftSign += trackingData[i][1];
+                rightSign += trackingData[i][2];
                 
             }
-
-            
-            
-            for (int i = 0; i < tracking2VecX.size(); i++) {
-                trackingPointDataX[1] += tracking2VecX[i];
-                trackingPointDataY[1] += tracking2VecY[i];
-            }
-            
-            if(tracking2VecX.size()>0){
-                trackingPointDataX[1] = trackingPointDataX[1] / tracking2VecX.size();
-                trackingPointDataY[1] = trackingPointDataY[1] / tracking2VecX.size();
-            }
             
             
             
+            topSign /= trackingDataSize;
+            leftSign /= trackingDataSize;
+            rightSign /= trackingDataSize;
             
-            
-            for (int i = 0; i < tracking3VecX.size(); i++) {
-                trackingPointDataX[2] += tracking3VecX[i];
-                trackingPointDataY[2] += tracking3VecY[i];
-            }
-            
-            if(tracking3VecX.size()>0){
-                trackingPointDataX[2] = trackingPointDataX[2] / tracking3VecX.size();
-                trackingPointDataY[2] = trackingPointDataY[2] / tracking3VecX.size();
-            }
-            
-            for (int i = 0; i < tracking4VecX.size(); i++) {
-                trackingPointDataX[3] += tracking4VecX[i];
-                trackingPointDataY[3] += tracking4VecY[i];
-            }
-            
-            if(tracking4VecX.size()>0){
-                trackingPointDataX[3] = trackingPointDataX[3] / tracking4VecX.size();
-                trackingPointDataY[3] = trackingPointDataY[3] / tracking4VecX.size();
-            }
-            
-            
-            
-            
-            
-            
-            for (int i = 0; i < tracking5VecX.size(); i++) {
-                trackingPointDataX[4] += tracking5VecX[i];
-                trackingPointDataY[4] += tracking5VecY[i];
-            }
-            
-            if(tracking5VecX.size()>0){
-                trackingPointDataX[4] = trackingPointDataX[4] / tracking5VecX.size();
-                trackingPointDataY[4] = trackingPointDataY[4] / tracking5VecX.size();
-            }
-            
-            
-            
-            for (int i = 0; i < tracking6VecX.size(); i++) {
-                trackingPointDataX[5] += tracking6VecX[i];
-                trackingPointDataY[5] += tracking6VecY[i];
-            }
-            
-            if(tracking6VecX.size()>0){
-                trackingPointDataX[5] = trackingPointDataX[5] / tracking6VecX.size();
-                trackingPointDataY[5] = trackingPointDataY[5] / tracking6VecX.size();
-            }
-            
-            
-            
-            for (int i = 0; i < tracking7VecX.size(); i++) {
-                trackingPointDataX[6] += tracking7VecX[i];
-                trackingPointDataY[6] += tracking7VecY[i];
-            }
-            
-            if(tracking7VecX.size()>0){
-                trackingPointDataX[6] = trackingPointDataX[6] / tracking7VecX.size();
-                trackingPointDataY[6] = trackingPointDataY[6] / tracking7VecX.size();
-            }
             
             
             
         }
-        
-        
-        
-
-        
-    }
-    
-    
-    
-    // ----------------------------------------  preapare tracking data
 
     
+        if(topSign > topSignThresh ){
+            
+            if(leftSign > leftSignThresh){
+                // make wave from left to right
+                waveLtoRCount += 1;
+            }
+            
+            // smaller right sign means keep moving to left
+            if(rightSign < -rightSignThresh){
+                // make wave from righ to left
+                waveRtoLCount += 1;
+            }
+        }
+    
+            
+        if(waveLtoRCount > 0){
+            waveLtoRCount -= 0.5;
+        }
+        
+        if(waveRtoLCount > 0){
+            waveRtoLCount -= 0.5;
+        }
+    
+        
+        
+        if(waveRtoLCount > rightCountLimit){
+            waveFromRightToLeft = true;
+        }
+        
+        if(waveLtoRCount > leftCountLimit){
+            waveFromLeftToRight = true;
+        }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        cout << "l to r :" << waveLtoRCount << "," << " r to l :" << waveRtoLCount << endl;
     if(bSendingOSC){
         // prepare data for osc send ----------------------------------------
         
@@ -589,16 +326,10 @@ void ofApp::update(){
 //        sender.sendMessage(m, false);
 //        m.clear();
         
-        string data;
-        for(int i = 0;i < trackingData.size();i++){
-            data += ofToString(trackingData[i]);
-            if(i != trackingData.size() - 1){
-                data += ",";
-                
-            }
-        }
-
-        cout << data <<  endl;
+        string data = ofToString(waveFromLeftToRight) + ofToString(waveFromRightToLeft);
+        
+        cout << data << endl;
+        
         // debug ================
 //        m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/osctextdata0");
         m.setAddress("/composition/selectedclip/video/effects/pwaveword/effect/osctextdata0");
@@ -616,6 +347,7 @@ void ofApp::update(){
         
         
 //
+        }
     }
 }
 
@@ -629,69 +361,73 @@ void ofApp::draw(){
     
 //    kinect.getDepthTexture().draw(0, 0);
     grayImage.draw(640,0);
-    diff.draw(0, 0);
-
-
-
-//    // draw tracking area
-    ofSetColor(255, 0, 0,128 + trackingData[0] * 128);
-    ofDrawRectangle(track1PosX, track1PosY, track1W, track1H);
-
-    ofSetColor(0,255,255);
-    ofDrawBitmapString(ofToString(bTrack1Diff) + "-" + ofToString(trackingData[0]), track1PosX, track1PosY);
+//    diff.draw(0, 0);
 
     
-    ofSetColor(0, 255, 0,128 + trackingData[1] * 128);
-    ofDrawRectangle(track2PosX, track2PosY, track2W, track2H);
-
-    ofSetColor(255,0,255);
-    ofDrawBitmapString(ofToString(bTrack2Diff) +  "-" + ofToString(trackingData[1]), track2PosX, track2PosY);
-
+    ofSetBackgroundAuto(true);
+    RectTracker& tracker = contourFinder.getTracker();
     
-    ofSetColor(0, 0, 255,128 + trackingData[2] * 128);
-    ofDrawRectangle(track3PosX, track3PosY, track3W, track3H);
-
-    ofSetColor(255,255,0);
-    ofDrawBitmapString(ofToString(bTrack3Diff) + "-" + ofToString(trackingData[2]), track3PosX, track3PosY);
-
-
-    ofSetColor(255, 255, 255,128 + trackingData[3] * 128);
-    ofDrawRectangle(track4PosX, track4PosY, track4W, track4H);
-    
-    ofSetColor(255,255,0);
-    ofDrawBitmapString(ofToString(bTrack4Diff) + "-" + ofToString(trackingData[3]), track4PosX, track4PosY);
-
-    
-
-    ofSetColor(255, 0, 0,128 + trackingData[4] * 128);
-    ofDrawRectangle(track5PosX, track5PosY, track5W, track5H);
-
-    ofSetColor(0,255,255);
-    ofDrawBitmapString(ofToString(bTrack5Diff) + "-" + ofToString(trackingData[4]), track5PosX, track5PosY);
-
-    
-
-    ofSetColor(0, 255, 0,128 + trackingData[5] * 128);
-    ofDrawRectangle(track6PosX, track6PosY, track6W, track6H);
-
-    ofSetColor(255,0,255);
-    ofDrawBitmapString(ofToString(bTrack6Diff) + "-" + ofToString(trackingData[5]), track6PosX, track6PosY);
-
-    
-    ofSetColor(0, 0, 255,128 + trackingData[6] * 128);
-    ofDrawRectangle(track7PosX, track7PosY, track7W, track7H);
-
-    ofSetColor(255,255,0);
-    ofDrawBitmapString(ofToString(bTrack7Diff) + "-" + ofToString(trackingData[6]), track7PosX, track7PosY);
-
-    ofSetColor(0, 255,0);
-    
-    for (int i = 0 ; i < trackingPointDataX.size(); i++) {
-        ofDrawCircle(trackingPointDataX[i], trackingPointDataY[i], 5.0);
+    if(bShowLabels && contourFinder.size() > 0) {
+        ofSetColor(255);
+        
+//        contourFinder.draw();
+        
+        float biggest;
+        int biggestIndex;
+        for(int i = 0; i < contourFinder.size(); i++) {
+            
+            if(contourFinder.getBoundingRect(i).area() > biggest){
+                biggest = contourFinder.getBoundingRect(i).area();
+                biggestIndex = i;
+            }
+        }
+        
+        float x = contourFinder.getBoundingRect(biggestIndex).x;
+        float y = contourFinder.getBoundingRect(biggestIndex).y;
+        
+        float w = contourFinder.getBoundingRect(biggestIndex).width;
+        float h = contourFinder.getBoundingRect(biggestIndex).height;
+        
+        ofSetColor(255,255,0,50);
+        ofDrawRectangle(x, y, w, h);
+        
+        ofSetColor(255);
+        ofPoint center = toOf(contourFinder.getCenter(biggestIndex));
+        ofPushMatrix();
+        ofTranslate(center.x, center.y);
+        int label = contourFinder.getLabel(biggestIndex);
+        string msg = ofToString(label) + ":" + ofToString(tracker.getAge(label));
+        ofDrawBitmapString(msg, 0, 0);
+        ofVec2f velocity = toOf(contourFinder.getVelocity(biggestIndex));
+        ofScale(5, 5);
+        ofDrawLine(0, 0, velocity.x, velocity.y);
+        ofPopMatrix();
+        
+        
     }
-    ofSetColor(255);
     
+    
+    float highLight = 0;
+    if(waveFromLeftToRight){
+        highLight = 50;
+    }
+    
+        ofSetColor(255, 0, 0,waveLtoRCount*10+highLight);
+        ofDrawRectangle(0,0, 320, 480);
 
+    highLight = 0;
+    
+    if(waveFromRightToLeft){
+        highLight = 50;
+    }
+
+        ofSetColor(0,0,255,waveRtoLCount*10 + highLight);
+        ofDrawRectangle(320, 0, 320, 480);
+        
+    
+    
+    
+    ofSetColor(255);
     gui.draw();
 
 }
