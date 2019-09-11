@@ -188,9 +188,14 @@ void ofApp::update(){
 
     // clear tracking data with 0.0
     trackingData.clear();
+    trackingPointDataX.clear();
+    trackingPointDataY.clear();
+
     for(int i = 0;i<trackingDataSize;i++){
         trackingData.push_back(0.0f);
-        
+        trackingPointDataX.push_back(0);
+        trackingPointDataY.push_back(0);
+
     }
     
     
@@ -284,11 +289,28 @@ void ofApp::update(){
         // tracking
         
         if(bTracking){
+            
+            vector<int> tracking1VecX;
+            vector<int> tracking2VecX;
+            vector<int> tracking3VecX;
+            vector<int> tracking4VecX;
+            vector<int> tracking5VecX;
+            vector<int> tracking6VecX;
+            vector<int> tracking7VecX;
+            
+            vector<int> tracking1VecY;
+            vector<int> tracking2VecY;
+            vector<int> tracking3VecY;
+            vector<int> tracking4VecY;
+            vector<int> tracking5VecY;
+            vector<int> tracking6VecY;
+            vector<int> tracking7VecY;
+            
             for (int i = 0; i < diff1.cols; i++) {
                 for (int j = 0; j < diff1.rows; j++) {
                     Scalar col = diff1.at<uchar>(j,i);
-//                    cout << col[0] << "," << col[1] << "," << col[2] << "," << col[3] << endl;
-//                    only col[0] has value 0 or 255
+                    //                    cout << col[0] << "," << col[1] << "," << col[2] << "," << col[3] << endl;
+                    //                    only col[0] has value 0 or 255
                     float mark = col[0]/255.0;
                     
                     Scalar col1 = gray1.at<uchar>(j,i);
@@ -299,10 +321,17 @@ void ofApp::update(){
                         
                         if(bTrack1Diff){
                             trackingData[0] += mark/(track1W*track1H);
-
+                            
                         }else{
+                            
+                            
                             trackingData[0] += mark1/(track1W*track1H);
-
+                            if(mark1 > 0.0){
+                                
+                                tracking1VecX.push_back(i);
+                                tracking1VecY.push_back(j);
+                            }
+                            
                         }
                         
                     }
@@ -313,10 +342,15 @@ void ofApp::update(){
                     if(i < track2PosX + track2W && i > track2PosX && j < track2PosY + track2H && j > track2PosY ){
                         if(bTrack2Diff){
                             trackingData[1] += mark/(track2W*track2H);
-
+                            
                         }else{
+                            
+                            
                             trackingData[1] += mark1/(track2W*track2H);
-
+                            if(mark1 > 0.0){
+                                tracking2VecX.push_back(i);
+                                tracking2VecY.push_back(j);
+                            }
                         }
                         
                     }
@@ -328,10 +362,15 @@ void ofApp::update(){
                     if(i < track3PosX + track3W && i > track3PosX && j < track3PosY + track3H && j > track3PosY ){
                         if(bTrack3Diff){
                             trackingData[2] += mark/(track3W*track3H);
-
+                            
                         }else{
+                            
+                            
                             trackingData[2] += mark1/(track3W*track3H);
-
+                            if(mark1 > 0.0){
+                                tracking3VecX.push_back(i);
+                                tracking3VecY.push_back(j);
+                            }
                         }
                     }
                     
@@ -342,10 +381,15 @@ void ofApp::update(){
                     if(i < track4PosX + track4W && i > track4PosX && j < track4PosY + track4H && j > track4PosY ){
                         if(bTrack4Diff){
                             trackingData[3] += mark/(track4W*track4H);
-
+                            
                         }else{
+                            
+                            
                             trackingData[3] += mark1/(track4W*track4H);
-
+                            if(mark1 > 0.0){
+                                tracking4VecX.push_back(i);
+                                tracking4VecY.push_back(j);
+                            }
                         }
                     }
                     
@@ -357,10 +401,15 @@ void ofApp::update(){
                     if(i < track5PosX + track5W && i > track5PosX && j < track5PosY + track5H && j > track5PosY ){
                         if(bTrack5Diff){
                             trackingData[4] += mark/(track5W*track5H);
-
+                            
                         }else{
+                            
+                            
                             trackingData[4] += mark1/(track5W*track5H);
-
+                            if(mark1 > 0.0){
+                                tracking5VecX.push_back(i);
+                                tracking5VecY.push_back(j);
+                            }
                         }
                     }
                     
@@ -372,10 +421,15 @@ void ofApp::update(){
                     if(i < track6PosX + track6W && i > track6PosX && j < track6PosY + track6H && j > track6PosY ){
                         if(bTrack6Diff){
                             trackingData[5] += mark/(track6W*track6H);
-
+                            
                         }else{
+                            
+                            
                             trackingData[5] += mark1/(track6W*track6H);
-
+                            if(mark1 > 0.0){
+                                tracking6VecX.push_back(i);
+                                tracking6VecY.push_back(j);
+                            }
                         }
                     }
                     
@@ -386,10 +440,15 @@ void ofApp::update(){
                     if(i < track7PosX + track7W && i > track7PosX && j < track7PosY + track7H && j > track7PosY ){
                         if(bTrack7Diff){
                             trackingData[6] += mark/(track7W*track7H);
-
+                            
                         }else{
+                            
+                            
                             trackingData[6] += mark1/(track7W*track7H);
-
+                            if(mark1 > 0.0){
+                                tracking7VecX.push_back(i);
+                                tracking7VecY.push_back(j);
+                            }
                         }
                         
                     }
@@ -397,7 +456,104 @@ void ofApp::update(){
                     
                     
                 }
+                
+                
+                
+            
+                
+                
             }
+            
+            
+            // proress tracking point raw data
+            
+            for (int i = 0; i < tracking1VecX.size(); i++) {
+                trackingPointDataX[0] += tracking1VecX[i];
+                trackingPointDataY[0] += tracking1VecY[i];
+            }
+            if(tracking1VecX.size() > 0){
+                trackingPointDataX[0] = trackingPointDataX[0] / tracking1VecX.size();
+                trackingPointDataY[0] = trackingPointDataY[0] / tracking1VecX.size();
+                
+            }
+
+            
+            
+            for (int i = 0; i < tracking2VecX.size(); i++) {
+                trackingPointDataX[1] += tracking2VecX[i];
+                trackingPointDataY[1] += tracking2VecY[i];
+            }
+            
+            if(tracking2VecX.size()>0){
+                trackingPointDataX[1] = trackingPointDataX[1] / tracking2VecX.size();
+                trackingPointDataY[1] = trackingPointDataY[1] / tracking2VecX.size();
+            }
+            
+            
+            
+            
+            
+            for (int i = 0; i < tracking3VecX.size(); i++) {
+                trackingPointDataX[2] += tracking3VecX[i];
+                trackingPointDataY[2] += tracking3VecY[i];
+            }
+            
+            if(tracking3VecX.size()>0){
+                trackingPointDataX[2] = trackingPointDataX[2] / tracking3VecX.size();
+                trackingPointDataY[2] = trackingPointDataY[2] / tracking3VecX.size();
+            }
+            
+            for (int i = 0; i < tracking4VecX.size(); i++) {
+                trackingPointDataX[3] += tracking4VecX[i];
+                trackingPointDataY[3] += tracking4VecY[i];
+            }
+            
+            if(tracking4VecX.size()>0){
+                trackingPointDataX[3] = trackingPointDataX[3] / tracking4VecX.size();
+                trackingPointDataY[3] = trackingPointDataY[3] / tracking4VecX.size();
+            }
+            
+            
+            
+            
+            
+            
+            for (int i = 0; i < tracking5VecX.size(); i++) {
+                trackingPointDataX[4] += tracking5VecX[i];
+                trackingPointDataY[4] += tracking5VecY[i];
+            }
+            
+            if(tracking5VecX.size()>0){
+                trackingPointDataX[4] = trackingPointDataX[4] / tracking5VecX.size();
+                trackingPointDataY[4] = trackingPointDataY[4] / tracking5VecX.size();
+            }
+            
+            
+            
+            for (int i = 0; i < tracking6VecX.size(); i++) {
+                trackingPointDataX[5] += tracking6VecX[i];
+                trackingPointDataY[5] += tracking6VecY[i];
+            }
+            
+            if(tracking6VecX.size()>0){
+                trackingPointDataX[5] = trackingPointDataX[5] / tracking6VecX.size();
+                trackingPointDataY[5] = trackingPointDataY[5] / tracking6VecX.size();
+            }
+            
+            
+            
+            for (int i = 0; i < tracking7VecX.size(); i++) {
+                trackingPointDataX[6] += tracking7VecX[i];
+                trackingPointDataY[6] += tracking7VecY[i];
+            }
+            
+            if(tracking7VecX.size()>0){
+                trackingPointDataX[6] = trackingPointDataX[6] / tracking7VecX.size();
+                trackingPointDataY[6] = trackingPointDataY[6] / tracking7VecX.size();
+            }
+            
+            
+            
         }
         
         
@@ -528,7 +684,11 @@ void ofApp::draw(){
     ofSetColor(255,255,0);
     ofDrawBitmapString(ofToString(bTrack7Diff) + "-" + ofToString(trackingData[6]), track7PosX, track7PosY);
 
+    ofSetColor(0, 255,0);
     
+    for (int i = 0 ; i < trackingPointDataX.size(); i++) {
+        ofDrawCircle(trackingPointDataX[i], trackingPointDataY[i], 5.0);
+    }
     ofSetColor(255);
     
 
