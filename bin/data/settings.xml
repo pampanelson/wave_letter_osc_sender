@@ -34,13 +34,13 @@
 	<track_3_b_h>325.444</track_3_b_h>
 	<sending_osc>0</sending_osc>
 	<Sending_osc>1</Sending_osc>
-	<near>217</near>
-	<far>70</far>
+	<near>195</near>
+	<far>138</far>
 	<use_opencv>1</use_opencv>
-	<angle>18</angle>
+	<angle>60</angle>
 	<arc_min>230</arc_min>
 	<arc_max>295</arc_max>
-	<flip>0</flip>
+	<flip>1</flip>
 	<t1_x>159.363</t1_x>
 	<t1_y>292.322</t1_y>
 	<t1_w>89.8235</t1_w>
@@ -86,9 +86,10 @@
 	<persistence>15</persistence>
 	<tracking_thresh>12.385</tracking_thresh>
 	<show_label>1</show_label>
-	<top_sign>3.6</top_sign>
+	<top_sign>9.9</top_sign>
 	<left_sign>9</left_sign>
-	<right_sign>4.5</right_sign>
-	<left_limit>8.9</left_limit>
-	<right_limit>8.7</right_limit>
+	<right_sign>14.1</right_sign>
+	<left_limit>5.7</left_limit>
+	<right_limit>5.6</right_limit>
+	<wave_move_speed>0.026245</wave_move_speed>
 </group>

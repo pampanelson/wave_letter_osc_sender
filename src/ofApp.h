@@ -84,6 +84,7 @@ class ofApp : public ofBaseApp{
     ofParameter<float> rightSignThresh;
     ofParameter<float> rightCountLimit;
     ofParameter<float> leftCountLimit;
+    ofParameter<float> waveMoveSpeed;
 
 
     // all is relative to center
@@ -96,7 +97,8 @@ class ofApp : public ofBaseApp{
     bool  waveFromLeftToRight;
     bool  waveFromRightToLeft;
     
-    
+    bool waveLtRon = false;
+    bool waveRtLon = false;
 //    vector<float> trackingData;
 //    vector<int> trackingPointDataX;
 //    vector<int> trackingPointDataY;

@@ -78,11 +78,12 @@ void ofApp::setup(){
     gui.add(trackingPersistence.set("persistence",15,1,60)); // frames
     
    
-    gui.add(topSignThresh.set("top sign",0,0,60)); // frames
-    gui.add(leftSignThresh.set("left sign",0,0,60)); // frames
-    gui.add(rightSignThresh.set("right sign",0,0,60)); // frames
-    gui.add(leftCountLimit.set("left limit",0,0,20)); // frames
-    gui.add(rightCountLimit.set("right limit",0,0,20)); // frames
+    gui.add(topSignThresh.set("top sign",0,0,60)); //
+    gui.add(leftSignThresh.set("left sign",0,0,60)); //
+    gui.add(rightSignThresh.set("right sign",0,0,60)); //
+    gui.add(leftCountLimit.set("left limit",0,0,20)); //
+    gui.add(rightCountLimit.set("right limit",0,0,20)); //
+    gui.add(waveMoveSpeed.set("wave move speed",0.005,0.001,0.1)); //
 
     
     if (!ofFile("settings.xml"))
@@ -325,26 +326,38 @@ void ofApp::update(){
         }
     
     
+        // check if wave on  now
+        waveLtRon = oscTrackingData[0] > -0.1 && oscTrackingData[0] < 1.1;
+        
+        waveRtLon = oscTrackingData[1] > -0.1 && oscTrackingData[1] < 1.1;
+        
+        if(waveLtRon){
+            oscTrackingData[0] += waveMoveSpeed;
+        }else{
+            oscTrackingData[0] = -0.1; // back to ready pos
+        }
+        
+        if(waveRtLon){
+            oscTrackingData[1] -= waveMoveSpeed;
+            
+        }else{
+            oscTrackingData[1] = 1.1;// back to ready pos
+        }
+        
+        
         
     // prepare osc data
-        if(waveFromLeftToRight){
-            oscTrackingData[0] = abs(sin(ofGetElapsedTimef()));
-        }else{
-            oscTrackingData[0] -= 0.01;
-            if(oscTrackingData[0] < -0.1){
-                oscTrackingData[0] = -0.1;
-            }
+        if(waveFromLeftToRight && !waveLtRon){
+            // add speed value first than chack if finish
+            oscTrackingData[0] += waveMoveSpeed;
+        
         }
         
-        if(waveFromRightToLeft){
-            oscTrackingData[1] = -abs(sin(ofGetElapsedTimef()));
-        }else{
-            oscTrackingData[1] -= 0.01;
-            if(oscTrackingData[1] < -0.1){
-                oscTrackingData[1] = -0.1;
-            }
-        }
+
         
+        if(waveFromRightToLeft && !waveRtLon){
+            oscTrackingData[1] -= waveMoveSpeed;
+        }
         
         
         
