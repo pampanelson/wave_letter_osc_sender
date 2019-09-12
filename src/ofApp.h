@@ -65,43 +65,30 @@ class ofApp : public ofBaseApp{
     ofParameter<bool> bThreshWithOpenCV;
     ofParameter<bool> bFlip;
 
-//    ofParameter<float> ellipseRadius;
-//    ofParameter<float> ellipseWideX;
-//    ofParameter<float> ellipseWideY;
+
     ofParameter<int> nearThreshold;
     ofParameter<int> farThreshold;
     
     ofParameter<int> angle;
-    ofParameter<bool> bShowLabels;
 
     ofParameter<float> minAreaRadius;
     ofParameter<float> maxAreaRadius;
     ofParameter<float> trackingThreshold;
     ofParameter<float> maxDistance;
     ofParameter<float> trackingPersistence;
-    ofParameter<float> topSignThresh;
-    ofParameter<float> leftSignThresh;
-    ofParameter<float> rightSignThresh;
-    ofParameter<float> rightCountLimit;
-    ofParameter<float> leftCountLimit;
+
     ofParameter<float> waveMoveSpeed;
 
 
-    // all is relative to center
-    float preTop;
-    float preLeft;
-    float preRigh;
-    
-    float waveLtoRCount;
-    float waveRtoLCount;
+    float preX;
     bool  waveFromLeftToRight;
     bool  waveFromRightToLeft;
     
     bool waveLtRon = false;
     bool waveRtLon = false;
-//    vector<float> trackingData;
-//    vector<int> trackingPointDataX;
-//    vector<int> trackingPointDataY;
+
+    
+    
     int trackingDataSize;
     vector<ofPoint> trackingData;
     

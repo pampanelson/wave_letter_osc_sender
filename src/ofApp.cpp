@@ -70,19 +70,13 @@ void ofApp::setup(){
     gui.add(bFlip.set("flip", false));
     gui.add(angle.set("angle",1,0,180));
     
-    gui.add(bShowLabels.set("show label", false));
+
     gui.add(minAreaRadius.set("min area",1,1,300));
     gui.add(maxAreaRadius.set("max area",10,1,800));
     gui.add(trackingThreshold.set("tracking thresh",1,1,100));
     gui.add(maxDistance.set("max dis",10,1,500));
     gui.add(trackingPersistence.set("persistence",15,1,60)); // frames
-    
-   
-    gui.add(topSignThresh.set("top sign",0,0,60)); //
-    gui.add(leftSignThresh.set("left sign",0,0,60)); //
-    gui.add(rightSignThresh.set("right sign",0,0,60)); //
-    gui.add(leftCountLimit.set("left limit",0,0,20)); //
-    gui.add(rightCountLimit.set("right limit",0,0,20)); //
+
     gui.add(waveMoveSpeed.set("wave move speed",0.005,0.001,0.1)); //
 
     
@@ -225,106 +219,11 @@ void ofApp::update(){
         
         // tracking
         // judege if need to sending signal for make waves
-        float topSign;
-        float leftSign;
-        float rightSign;
-        contourFinder.findContours(grayImage);
+       contourFinder.findContours(grayImage);
 
-        if(bTracking && contourFinder.size() > 0){
-//            contourFinder.findContours(diff);
-
-            
-            float biggest;
-            int biggestIndex;
-            for(int i = 0; i < contourFinder.size(); i++) {
-                
-                if(contourFinder.getBoundingRect(i).area() > biggest){
-                    biggest = contourFinder.getBoundingRect(i).area();
-                    biggestIndex = i;
-                }
-            }
-            
-            float x = contourFinder.getBoundingRect(biggestIndex).x;
-            float y = contourFinder.getBoundingRect(biggestIndex).y;
-            
-            float w = contourFinder.getBoundingRect(biggestIndex).width;
-            float h = contourFinder.getBoundingRect(biggestIndex).height;
-            
-            float left = x;
-            float right = x + w;
-
-            float deltaTop = y - preTop;
-            float deltaLeft = left - preLeft;
-            float deltaRight = right - preRigh;// delta is smaller is better , smaller than 0 means keeping move to left
-            
-            
-            preRigh = right;
-            preLeft = left;
-            preTop = y;
-            
-
-            for (int i = 0; i < trackingDataSize; i++) {
-                if(i == trackingDataSize - 1){
-                    // last element been replaced;
-                    trackingData[i] = ofPoint(deltaTop,deltaLeft,deltaRight);
-
-                }
-                else{
-                    trackingData[i] = trackingData[i+1];
-                }
-                
-                
-                topSign += trackingData[i][0];
-                leftSign += trackingData[i][1];
-                rightSign += trackingData[i][2];
-                
-            }
-            
-            
-            
-            topSign /= trackingDataSize;
-            leftSign /= trackingDataSize;
-            rightSign /= trackingDataSize;
-            
-            
-            
-            
-        }
-
-    
-        if(topSign > topSignThresh ){
-            
-            if(leftSign > leftSignThresh){
-                // make wave from left to right
-                waveLtoRCount += 1;
-            }
-            
-            // smaller right sign means keep moving to left
-            if(rightSign < -rightSignThresh){
-                // make wave from righ to left
-                waveRtoLCount += 1;
-            }
-        }
-    
-            
-        if(waveLtoRCount > 0){
-            waveLtoRCount -= 0.5;
-        }
-        
-        if(waveRtoLCount > 0){
-            waveRtoLCount -= 0.5;
-        }
-    
+ 
         
         
-        if(waveRtoLCount > rightCountLimit){
-            waveFromRightToLeft = true;
-        }
-        
-        if(waveLtoRCount > leftCountLimit){
-            waveFromLeftToRight = true;
-        }
-    
     
         // check if wave on  now
         waveLtRon = oscTrackingData[0] > -0.1 && oscTrackingData[0] < 1.1;
@@ -421,68 +320,8 @@ void ofApp::draw(){
 //    diff.draw(0, 0);
 
     
-    ofSetBackgroundAuto(true);
-    RectTracker& tracker = contourFinder.getTracker();
-    
-    if(bShowLabels && contourFinder.size() > 0) {
-        ofSetColor(255);
-        
-//        contourFinder.draw();
-        
-        float biggest;
-        int biggestIndex;
-        for(int i = 0; i < contourFinder.size(); i++) {
-            
-            if(contourFinder.getBoundingRect(i).area() > biggest){
-                biggest = contourFinder.getBoundingRect(i).area();
-                biggestIndex = i;
-            }
-        }
-        
-        float x = contourFinder.getBoundingRect(biggestIndex).x;
-        float y = contourFinder.getBoundingRect(biggestIndex).y;
-        
-        float w = contourFinder.getBoundingRect(biggestIndex).width;
-        float h = contourFinder.getBoundingRect(biggestIndex).height;
-        
-        ofSetColor(255,255,0,50);
-        ofDrawRectangle(x, y, w, h);
-        
-        ofSetColor(255);
-        ofPoint center = toOf(contourFinder.getCenter(biggestIndex));
-        ofPushMatrix();
-        ofTranslate(center.x, center.y);
-        int label = contourFinder.getLabel(biggestIndex);
-        string msg = ofToString(label) + ":" + ofToString(tracker.getAge(label));
-        ofDrawBitmapString(msg, 0, 0);
-        ofVec2f velocity = toOf(contourFinder.getVelocity(biggestIndex));
-        ofScale(5, 5);
-        ofDrawLine(0, 0, velocity.x, velocity.y);
-        ofPopMatrix();
-        
-        
-    }
-    
-    
-    float highLight = 0;
-    if(waveFromLeftToRight){
-        highLight = 50;
-    }
-    
-        ofSetColor(255, 0, 0,waveLtoRCount*10+highLight);
-        ofDrawRectangle(0,0, 320, 480);
 
-    highLight = 0;
-    
-    if(waveFromRightToLeft){
-        highLight = 50;
-    }
 
-        ofSetColor(0,0,255,waveRtoLCount*10 + highLight);
-        ofDrawRectangle(320, 0, 320, 480);
-        
-    
-    
     
     ofSetColor(255);
     gui.draw();
