@@ -79,8 +79,9 @@ class ofApp : public ofBaseApp{
 
     ofParameter<float> waveMoveSpeed;
 
-
-    float preX;
+    ofPoint centerPoint;
+    float preCenterX;
+    
     bool  waveFromLeftToRight;
     bool  waveFromRightToLeft;
     

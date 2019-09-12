@@ -82,7 +82,7 @@
 	<ellipse_wide_y>1.21</ellipse_wide_y>
 	<min_area>17.299</min_area>
 	<max_area>557.616</max_area>
-	<max_dis>10</max_dis>
+	<max_dis>163.175</max_dis>
 	<persistence>15</persistence>
 	<tracking_thresh>12.385</tracking_thresh>
 	<show_label>1</show_label>
@@ -91,5 +91,5 @@
 	<right_sign>14.1</right_sign>
 	<left_limit>5.7</left_limit>
 	<right_limit>5.6</right_limit>
-	<wave_move_speed>0.026245</wave_move_speed>
+	<wave_move_speed>0.001495</wave_move_speed>
 </group>

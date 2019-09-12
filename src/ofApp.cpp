@@ -219,9 +219,55 @@ void ofApp::update(){
         
         // tracking
         // judege if need to sending signal for make waves
+        
+        // get all tracking contour centroid average value
        contourFinder.findContours(grayImage);
 
- 
+        
+        // clear saving
+        centerPoint.x = 0.0;
+        centerPoint.y = 0.0;
+        int trackingContourSize = contourFinder.size();
+        
+        if(trackingContourSize > 0){
+            for (int i = 0; i < contourFinder.size(); i++) {
+                centerPoint.x += contourFinder.getCentroid(i).x;
+                centerPoint.y += contourFinder.getCentroid(i).y;
+            }
+            centerPoint.x /= contourFinder.size();
+            centerPoint.y /= contourFinder.size();
+
+        }
+        
+        
+        // push into state stack saving
+        for (int i = 0; i < trackingDataSize; i++) {
+            if(i == trackingDataSize - 1){
+                // last element been replaced;
+                trackingData[i] = centerPoint;
+                
+            }
+            else{
+                trackingData[i] = trackingData[i+1];
+            }
+            
+            
+        }
+        
+        float deltaX = trackingData[trackingDataSize-1].x - trackingData[0].x;
+        
+        
+        
+        if (deltaX > maxDistance) {
+            waveFromLeftToRight = true;
+        }
+        
+        
+        // right to left is minus value
+        if(deltaX < -maxDistance){
+            waveFromRightToLeft = true;
+        }
+        
         
         
     
@@ -232,12 +278,18 @@ void ofApp::update(){
         
         if(waveLtRon){
             oscTrackingData[0] += waveMoveSpeed;
+            oscTrackingData[0] += abs(deltaX)/5000.;// speed based on position change distance,deltaX has signal
+
         }else{
             oscTrackingData[0] = -0.1; // back to ready pos
         }
         
         if(waveRtLon){
+            
+
             oscTrackingData[1] -= waveMoveSpeed;
+            oscTrackingData[1]  -= abs(deltaX)/5000.; // speed based on position change distance,and
+
             
         }else{
             oscTrackingData[1] = 1.1;// back to ready pos
@@ -320,8 +372,11 @@ void ofApp::draw(){
 //    diff.draw(0, 0);
 
     
-
-
+    contourFinder.draw();
+    
+    // for debug
+    ofSetColor(0, 0, 155);
+    ofDrawCircle(centerPoint.x, centerPoint.y, 30);
     
     ofSetColor(255);
     gui.draw();
