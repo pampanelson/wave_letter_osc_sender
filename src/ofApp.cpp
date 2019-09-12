@@ -92,7 +92,7 @@ void ofApp::setup(){
     
     
     // init tracking data size;
-    trackingDataSize = 8;// 30 frames for a sencod
+    trackingDataSize = 30;// 30 frames for a sencod
     
     for(int i = 0;i<trackingDataSize;i++){
         
@@ -100,6 +100,17 @@ void ofApp::setup(){
         trackingData.push_back(p);
         
     }
+    
+    oscTrackingDataSize = 8;
+    for(int i = 0;i<oscTrackingDataSize;i++){
+        
+        float angle = -0.1;
+        oscTrackingData.push_back(angle);
+        
+    }
+    
+    
+    
     
     waveFromLeftToRight = false;
     waveFromRightToLeft = false;
@@ -314,7 +325,29 @@ void ofApp::update(){
         }
     
     
-        cout << "l to r :" << waveLtoRCount << "," << " r to l :" << waveRtoLCount << endl;
+        
+    // prepare osc data
+        if(waveFromLeftToRight){
+            oscTrackingData[0] = abs(sin(ofGetElapsedTimef()));
+        }else{
+            oscTrackingData[0] -= 0.01;
+            if(oscTrackingData[0] < -0.1){
+                oscTrackingData[0] = -0.1;
+            }
+        }
+        
+        if(waveFromRightToLeft){
+            oscTrackingData[1] = -abs(sin(ofGetElapsedTimef()));
+        }else{
+            oscTrackingData[1] -= 0.01;
+            if(oscTrackingData[1] < -0.1){
+                oscTrackingData[1] = -0.1;
+            }
+        }
+        
+        
+        
+        
     if(bSendingOSC){
         // prepare data for osc send ----------------------------------------
         
@@ -326,8 +359,19 @@ void ofApp::update(){
 //        sender.sendMessage(m, false);
 //        m.clear();
         
-        string data = ofToString(waveFromLeftToRight) + ofToString(waveFromRightToLeft);
+        string data;
         
+        for(int i = 0;i<oscTrackingDataSize;i++){
+//            oscTrackingData[i] = -0.1;
+//            oscTrackingData[i] += i * 0.1;
+            data += ofToString(oscTrackingData[i]);
+            if(i != oscTrackingDataSize - 1){
+                data += ",";
+            }
+            
+        }
+        
+
         cout << data << endl;
         
         // debug ================

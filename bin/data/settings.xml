@@ -40,7 +40,7 @@
 	<angle>18</angle>
 	<arc_min>230</arc_min>
 	<arc_max>295</arc_max>
-	<flip>1</flip>
+	<flip>0</flip>
 	<t1_x>159.363</t1_x>
 	<t1_y>292.322</t1_y>
 	<t1_w>89.8235</t1_w>

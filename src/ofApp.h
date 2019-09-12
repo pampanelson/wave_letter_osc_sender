@@ -102,4 +102,7 @@ class ofApp : public ofBaseApp{
 //    vector<int> trackingPointDataY;
     int trackingDataSize;
     vector<ofPoint> trackingData;
+    
+    int oscTrackingDataSize;
+    vector<float> oscTrackingData;
 };
