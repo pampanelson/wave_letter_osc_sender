@@ -92,7 +92,7 @@ void ofApp::setup(){
     
     
     // init tracking data size;
-    trackingDataSize = 30;// 30 frames for a sencod
+    trackingDataSize = 8;// 30 frames for a sencod
     
     for(int i = 0;i<trackingDataSize;i++){
         
